@@ -6,7 +6,7 @@
  *     http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-package com.mycompany.imagej;
+package com.berdal84.mageek;
 
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
@@ -33,8 +33,8 @@ import java.util.List;
  * and replace the {@link run} method implementation with your own logic.
  * </p>
  */
-@Plugin(type = Command.class, menuPath = "Plugins>Gauss Filtering")
-public class GaussFiltering<T extends RealType<T>> implements Command {
+@Plugin(type = Command.class, menuPath = "Plugins>Mageek")
+public class Mageek<T extends RealType<T>> implements Command {
     //
     // Feel free to add more parameters here...
     //
@@ -94,7 +94,7 @@ public class GaussFiltering<T extends RealType<T>> implements Command {
             ij.ui().show(dataset);
 
             // invoke the plugin
-            ij.command().run(GaussFiltering.class, true);
+            ij.command().run(Mageek.class, true);
         }
     }
 
