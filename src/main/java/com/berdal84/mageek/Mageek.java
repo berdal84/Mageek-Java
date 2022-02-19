@@ -40,9 +40,6 @@ public class Mageek<T extends RealType<T>> implements Command {
     //
 
     @Parameter
-    private Dataset currentData;
-
-    @Parameter
     private UIService uiService;
 
     @Parameter
@@ -50,24 +47,8 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     @Override
     public void run() {
-        final Img<T> image = (Img<T>)currentData.getImgPlus();
-
-        //
-        // Enter image processing code here ...
-        // The following is just a Gauss filtering example
-        //
-        final double[] sigmas = {1.0, 3.0, 5.0};
-
-        List<RandomAccessibleInterval<T>> results = new ArrayList<>();
-
-        for (double sigma : sigmas) {
-            results.add(opService.filter().gauss(image, sigma));
-        }
-
-        // display result
-        for (RandomAccessibleInterval<T> elem : results) {
-            uiService.show(elem);
-        }
+    	final String message = "Hello world ! I am Mageek.";
+    	uiService.showDialog(message);
     }
 
     /**
@@ -82,20 +63,7 @@ public class Mageek<T extends RealType<T>> implements Command {
         // create the ImageJ application context with all available services
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
-
-        // ask the user for a file to open
-        final File file = ij.ui().chooseFile(null, "open");
-
-        if (file != null) {
-            // load the dataset
-            final Dataset dataset = ij.scifio().datasetIO().open(file.getPath());
-
-            // show the image
-            ij.ui().show(dataset);
-
-            // invoke the plugin
-            ij.command().run(Mageek.class, true);
-        }
+        ij.command().run(Mageek.class, true);
     }
 
 }
