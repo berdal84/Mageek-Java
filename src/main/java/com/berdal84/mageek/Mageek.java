@@ -18,6 +18,8 @@ import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
+import org.scijava.log.LogLevel;
+import org.scijava.log.LogService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,11 +47,19 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     @Parameter
     private OpService opService;
+    
+    @Parameter
+    private LogService logService;
 
     @Override
-    public void run() {
+    public void run()
+    {    	
+    	logService.log( LogLevel.INFO, "Running Mageek ...");
+    	
     	final String message = "Hello world ! I am Mageek.";
     	uiService.showDialog(message);
+    	
+    	logService.log( LogLevel.INFO, "Mageek Stopped");
     }
 
     /**
