@@ -24,20 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This example illustrates how to create an ImageJ {@link Command} plugin.
- * <p>
- * The code here is a simple Gaussian blur using ImageJ Ops.
- * </p>
- * <p>
- * You should replace the parameter fields with your own inputs and outputs,
- * and replace the {@link run} method implementation with your own logic.
- * </p>
+ * Mageek2 is the Java version of Mageek.ijm macro
+ * 
+ * This plugin allows to process files by selecting a source directory.
+ * The process will:
+ * - scan recursively the folder
+ * - display a scan result to let the user to choose which file extension to process, and which colors to use,
+ * - importing each file's series,
+ * - splitting each series's channel,
+ * - applying a Z projection (to combine all slices),
+ * - colorize each channel,
+ * - save result to a "ANALYZED" folder.
  */
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
 public class Mageek<T extends RealType<T>> implements Command {
-    //
-    // Feel free to add more parameters here...
-    //
+
 
     @Parameter
     private UIService uiService;
