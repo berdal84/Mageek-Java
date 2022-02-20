@@ -12,32 +12,31 @@
 		<relativePath />
 	</parent>
 
-	<groupId>com.berdal84</groupId>        <!-- FIXME: Your organization groupId here -->
-	<artifactId>Mageek</artifactId> <!-- FIXME: Your project artifactId here   -->
+	<groupId>com.berdal84</groupId>
+	<artifactId>Mageek</artifactId>
 	<version>2</version>
 
-	<name>Mageek</name>                                               <!-- FIXME: Your project name here          -->
-	<description>A Maven project implementing an ImageJ command.</description> <!-- FIXME: Your project description here   -->
-	<url>https://github.com/berdal84/mageek2/</url>                   <!-- FIXME: Your project website here       -->
-	<inceptionYear>2022</inceptionYear>                                        <!-- FIXME: Your project starting year here -->
+	<name>Mageek</name>
+	<description>A small plugin to colorize images channels, works with multi series/channels/slices.</description>
+	<url>https://github.com/berdal84/Mageek2</url>
+	<inceptionYear>2022</inceptionYear>
 	<organization>
-		<name>Berdal84</name>           <!-- FIXME: Your organization name here    -->
-		<url>https://github.com/berdal84/</url> <!-- FIXME: Your organization website here -->
+		<name>Berdal84</name>
+		<url>https://github.com/berdal84/</url>
 	</organization>
 	<licenses>
-		<license>                         <!-- FIXME: Your license here -->
-			<name>CC0</name>
-			<url>https://creativecommons.org/publicdomain/zero/1.0/</url>
-			<distribution>repo</distribution>
-		</license>
+		<license>
+          <name>MIT License</name>
+          <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
 	</licenses>
 
 	<developers>
-		<!-- See https://imagej.net/Team -->
+
 		<developer>
-			<id>berdal84</id>                                          <!-- FIXME: Your GitHub handle here -->
-			<name>Berenger Dalle-Cort</name>                            <!-- FIXME: Your name here          -->
-			<url>https://dalle-cort.fr/</url> <!-- FIXME: Your website here       -->
+			<id>berdal84</id>
+			<name>Berenger Dalle-Cort</name>
+			<url>https://dalle-cort.fr/</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -46,6 +45,15 @@
 				<role>reviewer</role>
 				<role>support</role>
 				<role>maintainer</role>
+			</roles>
+		</developer>
+
+		<developer>
+			<id>mgaritah</id>
+			<name>Marcela Garita Hernandez</name>
+			<roles>
+				<role>founder</role>
+				<role>reviewer</role>
 			</roles>
 		</developer>
 	</developers>
@@ -63,24 +71,25 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:https://github.com/imagej/example-imagej2-command</connection>
-		<developerConnection>scm:git:git@github.com:imagej/example-imagej2-command</developerConnection>
+		<connection>scm:git:https://github.com/berdal84/Mageek2</connection>
+		<developerConnection>scm:git:git@github.com:berdal84/Mageek2</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/imagej/example-imagej2-command</url>
+		<url>https://github.com/berdal84/Mageek2</url>
 	</scm>
+
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/imagej/example-imagej2-command/issues</url>
+		<url>https://github.com/berdal84/Mageek2/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>None</system>
 	</ciManagement>
 
 	<properties>
-		<package-name>com.berdal84.mageek</package-name>                   <!-- FIXME: Your project package prefix here -->
-		<main-class>com.berdal84.mageek.Mageek</main-class>        <!-- FIXME: Your project main class here, or delete for none -->
-		<license.licenseName>cc0</license.licenseName>                      <!-- FIXME: Your license-maven-plugin license code here -->
-		<license.copyrightOwners>My Company, Inc.</license.copyrightOwners> <!-- FIXME: Your organization legal entity name here -->
+		<package-name>com.berdal84.mageek</package-name>
+		<main-class>com.berdal84.mageek.Mageek</main-class>
+		<license.licenseName>MIT</license.licenseName>
+		<license.copyrightOwners>Berenger Dalle-Cort and Marcela Garita Hernandez</license.copyrightOwners>
 	</properties>
 
 	<repositories>
