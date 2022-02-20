@@ -18,6 +18,8 @@ import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.DialogPrompt.MessageType;
+import org.scijava.ui.DialogPrompt.OptionType;
+import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
@@ -61,6 +63,9 @@ public class Mageek<T extends RealType<T>> implements Command {
     /* User home folder */
     private final File HOME_FOLDER = new File(System.getProperty("user.home"));
 
+    /* Subfolder name to put all analysed files */
+    private final String ANALYSED_SUBFOLDER_PATH = "ANALYSED";
+    
     /* Scanned files */
     File scannedFiles[] = {};
     
@@ -77,23 +82,51 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     	// TODO: Display Mageek main window
     	
-    	File pickedFolder = this.pickSourceFolder();
+    	File pickedFolder = uiService.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
      	if ( pickedFolder == null )
     	{
-     		this.sourceFolder = null;
-     		this.destinationFolder = null;
+     		sourceFolder = null;
+     		destinationFolder = null;
      		logService.log( LogLevel.WARN, "User cancelled and did not select any folder !");
     	}
     	else
     	{
-    		this.sourceFolder = pickedFolder;
-    		this.destinationFolder = pickedFolder;
-    		logService.log( LogLevel.INFO, "Scanning folder " + this.sourceFolder.toString() + " ...");
-    		logService.log( LogLevel.INFO, "Processing files ...");
-        	// TODO: display scan result (extension list) and color presets.
-    		// TODO: process files
+    		sourceFolder      = pickedFolder;    		
+    		destinationFolder = new File( sourceFolder.toString() + File.separator + ANALYSED_SUBFOLDER_PATH );
+    		
+    		if ( destinationFolder.exists() )
+    		{
+    			StringBuilder sb = new StringBuilder();
+    			sb.append("Output directory ");
+    			sb.append(destinationFolder.toString());
+    			sb.append(" already exists, do you want to erase its content ?");
+		
+    			DialogPrompt.Result result = uiService.showDialog( sb.toString(), MessageType.QUESTION_MESSAGE, OptionType.YES_NO_OPTION);
+    			
+    			if ( result == DialogPrompt.Result.YES_OPTION  )
+    			{
+    				Mageek.deleteDirectory(destinationFolder, false);
+    			}
+    			else
+    			{
+    				destinationFolder = null;
+    				sourceFolder = null;
+    			}    			
+    		}    		
+    		else
+    		{
+    			destinationFolder.mkdir();
+    		}
+       		
+    		if ( sourceFolder != null )
+    		{
+    			logService.log( LogLevel.INFO, "Scanning folder " + sourceFolder.toString() + " ...");
+        		logService.log( LogLevel.INFO, "Processing files ...");
+            	// TODO: display scan result (extension list) and color presets.
+        		// TODO: process files
+    		}    		
     	}
-    	this.showStatistics();
+    	showStatistics();
     	logService.log( LogLevel.INFO, "Mageek Stopped");
     }
     
@@ -139,16 +172,8 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     	uiService.showDialog(sb.toString(), "Processing result window", messageType );
     }
-    
-    /**
-     * Open a window to pick a folder
-     * @return
-     */
-    private File pickSourceFolder()
-    {    	
-    	return uiService.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
-    }
 
+    
     /**
      * This main function serves for development purposes.
      * It allows you to run the plugin immediately out of
@@ -162,6 +187,17 @@ public class Mageek<T extends RealType<T>> implements Command {
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
         ij.command().run(Mageek.class, true);
+    }
+    
+    private static void deleteDirectory(File directoryToBeDeleted, boolean self) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                Mageek.deleteDirectory(file, true);
+            }
+        }
+        if ( self)
+        	directoryToBeDeleted.delete();
     }
 
 }
