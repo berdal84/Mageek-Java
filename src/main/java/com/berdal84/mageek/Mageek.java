@@ -17,13 +17,14 @@ import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.DialogPrompt.MessageType;
 import org.scijava.ui.UIService;
+import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.StringBuilder;
 
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
@@ -50,16 +51,102 @@ public class Mageek<T extends RealType<T>> implements Command {
     
     @Parameter
     private LogService logService;
+    
+    /* The current source folder */
+    File sourceFolder;
+    
+    /* The current destination folder */
+    File destinationFolder;
 
+    /* User home folder */
+    private final File HOME_FOLDER = new File(System.getProperty("user.home"));
+
+    /* Scanned files */
+    File scannedFiles[] = {};
+    
+    /* Ignored files */
+    File ignoredFiles[] = {};
+    
+    /* Processed files */
+    File processedFiles[] = {};
+    
     @Override
     public void run()
     {    	
     	logService.log( LogLevel.INFO, "Running Mageek ...");
+
+    	// TODO: Display Mageek main window
     	
-    	final String message = "Hello world ! I am Mageek.";
-    	uiService.showDialog(message);
-    	
+    	File pickedFolder = this.pickSourceFolder();
+     	if ( pickedFolder == null )
+    	{
+     		this.sourceFolder = null;
+     		this.destinationFolder = null;
+     		logService.log( LogLevel.WARN, "User cancelled and did not select any folder !");
+    	}
+    	else
+    	{
+    		this.sourceFolder = pickedFolder;
+    		this.destinationFolder = pickedFolder;
+    		logService.log( LogLevel.INFO, "Scanning folder " + this.sourceFolder.toString() + " ...");
+    		logService.log( LogLevel.INFO, "Processing files ...");
+        	// TODO: display scan result (extension list) and color presets.
+    		// TODO: process files
+    	}
+    	this.showStatistics();
     	logService.log( LogLevel.INFO, "Mageek Stopped");
+    }
+    
+    /**
+     * Show the statistics after images have been processed
+     * - scanned
+     * - ignored
+     * - processed
+     * With a good bye message.
+     */
+    private void showStatistics()
+    {
+    	StringBuilder sb = new StringBuilder(); 
+    	MessageType messageType;    	
+    	
+    	if ( this.sourceFolder == null)
+    	{
+    		sb.append("\nNo source folder was selected.");
+    		messageType = MessageType.WARNING_MESSAGE;
+    	}
+    	else
+    	{
+    		sb.append("\nProcessing done !");
+    		sb.append("\n\nFolders: ");
+        	sb.append("\n- source: ");
+        	sb.append(this.sourceFolder.toString());    	
+        	sb.append("\n- dest: ");
+        	sb.append(this.destinationFolder.toString());
+        	
+        	sb.append("\n\n - scanned: ");
+        	sb.append(this.scannedFiles.length);
+        	
+        	sb.append("\n - ignored: ");
+        	sb.append(this.ignoredFiles.length);
+        	
+        	sb.append("\n - processed: ");
+        	sb.append(this.processedFiles.length);
+        	
+        	messageType = MessageType.INFORMATION_MESSAGE;
+    	}
+    	
+    	sb.append("\n\nHasta la vista, baby. ^^");
+
+    	uiService.showDialog(sb.toString(), "Processing result window", messageType );
+    }
+    
+    /**
+     * Open a window to pick a folder
+     * @return
+     */
+    private File pickSourceFolder()
+    {    	
+    	return uiService.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
     }
 
     /**
