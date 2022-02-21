@@ -55,10 +55,10 @@ public class Mageek<T extends RealType<T>> implements Command {
     private LogService logService;
     
     /* The current source folder */
-    File sourceFolder;
+    private File sourceFolder;
     
     /* The current destination folder */
-    File destinationFolder;
+    private File destinationFolder;
 
     /* User home folder */
     private final File HOME_FOLDER = new File(System.getProperty("user.home"));
@@ -66,14 +66,17 @@ public class Mageek<T extends RealType<T>> implements Command {
     /* Subfolder name to put all analysed files */
     private final String ANALYSED_SUBFOLDER_PATH = "ANALYSED";
     
+    /* The script title */
+    private final String SCRIPT_TITLE = "Mageek";
+    
     /* Scanned files */
-    File scannedFiles[] = {};
+    private File scannedFiles[] = {};
     
     /* Ignored files */
-    File ignoredFiles[] = {};
+    private File ignoredFiles[] = {};
     
     /* Processed files */
-    File processedFiles[] = {};
+    private File processedFiles[] = {};
     
     @Override
     public void run()
@@ -82,36 +85,50 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     	// TODO: Display Mageek main window
     	
+    	// ask user to pick a source folder
     	File pickedFolder = uiService.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
      	if ( pickedFolder == null )
     	{
-     		sourceFolder = null;
+     		sourceFolder      = null;
      		destinationFolder = null;
-     		logService.log( LogLevel.WARN, "User cancelled and did not select any folder !");
+     		logService.log( LogLevel.WARN, "User did not select any folder !");
     	}
     	else
     	{
-    		sourceFolder      = pickedFolder;    		
-    		destinationFolder = new File( sourceFolder.toString() + File.separator + ANALYSED_SUBFOLDER_PATH );
+    		sourceFolder = pickedFolder;
+    		
+    		String destFolderPath = String.format(
+    				"%s%s%s",
+    				sourceFolder.getAbsolutePath(),
+    				File.separator,
+    				ANALYSED_SUBFOLDER_PATH
+    				);
+
+    		destinationFolder = new File( destFolderPath );
     		
     		if ( destinationFolder.exists() )
     		{
-    			StringBuilder sb = new StringBuilder();
-    			sb.append("Output directory ");
-    			sb.append(destinationFolder.toString());
-    			sb.append(" already exists, do you want to erase its content ?");
+    			String message = String.format(
+    					"Output directory %s already exists.\nDo you want to erase its content before to launch the process ?",
+    					destinationFolder.toString()
+    					);
 		
-    			DialogPrompt.Result result = uiService.showDialog( sb.toString(), MessageType.QUESTION_MESSAGE, OptionType.YES_NO_OPTION);
+    			DialogPrompt.Result result = uiService.showDialog( message, MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
     			
-    			if ( result == DialogPrompt.Result.YES_OPTION  )
+    			switch( result )
     			{
+    			case YES_OPTION:
     				Mageek.deleteDirectory(destinationFolder, false);
-    			}
-    			else
-    			{
+    				break;
+    				
+    			case NO_OPTION:
+    				break;
+    				
+    			case CANCEL_OPTION:
     				destinationFolder = null;
     				sourceFolder = null;
-    			}    			
+    				break;
+    			}   			
     		}    		
     		else
     		{
@@ -120,7 +137,7 @@ public class Mageek<T extends RealType<T>> implements Command {
        		
     		if ( sourceFolder != null )
     		{
-    			logService.log( LogLevel.INFO, "Scanning folder " + sourceFolder.toString() + " ...");
+    			logService.log( LogLevel.INFO, String.format("Scanning folder %s ...", sourceFolder.getAbsolutePath()) );
         		logService.log( LogLevel.INFO, "Processing files ...");
             	// TODO: display scan result (extension list) and color presets.
         		// TODO: process files
@@ -139,38 +156,37 @@ public class Mageek<T extends RealType<T>> implements Command {
      */
     private void showStatistics()
     {
-    	StringBuilder sb = new StringBuilder(); 
+    	String innerMessage;
+    	
     	MessageType messageType;    	
     	
     	if ( this.sourceFolder == null)
     	{
-    		sb.append("\nNo source folder was selected.");
-    		messageType = MessageType.WARNING_MESSAGE;
+    		innerMessage = "Nothing to process ...";
+    		messageType = MessageType.INFORMATION_MESSAGE;
     	}
     	else
     	{
-    		sb.append("\nProcessing done !");
-    		sb.append("\n\nFolders: ");
-        	sb.append("\n- source: ");
-        	sb.append(this.sourceFolder.toString());    	
-        	sb.append("\n- dest: ");
-        	sb.append(this.destinationFolder.toString());
-        	
-        	sb.append("\n\n - scanned: ");
-        	sb.append(this.scannedFiles.length);
-        	
-        	sb.append("\n - ignored: ");
-        	sb.append(this.ignoredFiles.length);
-        	
-        	sb.append("\n - processed: ");
-        	sb.append(this.processedFiles.length);
+    		innerMessage = String.format(
+    				"%s processed the folder %s.\nOutput file(s) were generated into %s.\n\nResume:\n - scanned: %d file(s)\n - ignored: %d file(s)\n - processed: %d file(s)",
+    				SCRIPT_TITLE,
+    				sourceFolder.toString(),
+    				destinationFolder.toString(),
+    				scannedFiles.length,
+    				ignoredFiles.length,
+    				processedFiles.length
+    				);
         	
         	messageType = MessageType.INFORMATION_MESSAGE;
     	}
     	
-    	sb.append("\n\nHasta la vista, baby. ^^");
+    	
+    	String message = String.format(
+    			"%s\n\n\t\tHasta la vista, baby. ^^",
+    			innerMessage
+    			);
 
-    	uiService.showDialog(sb.toString(), "Processing result window", messageType );
+    	uiService.showDialog( message, "Processing result window", messageType );
     }
 
     
