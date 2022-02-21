@@ -8,11 +8,8 @@
 
 package com.berdal84.mageek;
 
-import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -20,13 +17,18 @@ import org.scijava.plugin.Plugin;
 import org.scijava.ui.DialogPrompt.MessageType;
 import org.scijava.ui.DialogPrompt.OptionType;
 import org.scijava.ui.DialogPrompt;
+
 import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
-import java.lang.StringBuilder;
+
+import javax.swing.WindowConstants;
+
 
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
@@ -44,15 +46,15 @@ import java.lang.StringBuilder;
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
 public class Mageek<T extends RealType<T>> implements Command {
 
+	
+    @Parameter
+    private UIService ui;
 
     @Parameter
-    private UIService uiService;
-
-    @Parameter
-    private OpService opService;
+    private OpService op;
     
     @Parameter
-    private LogService logService;
+    private LogService log;
     
     /* The current source folder */
     private File sourceFolder;
@@ -78,20 +80,81 @@ public class Mageek<T extends RealType<T>> implements Command {
     /* Processed files */
     private File processedFiles[] = {};
     
+    private MageekDialog dialog;
+    
     @Override
     public void run()
-    {    	
-    	logService.log( LogLevel.INFO, "Running Mageek ...");
-
-    	// TODO: Display Mageek main window
+    {    
+    	log.log( LogLevel.INFO, "Running Mageek ...");
     	
-    	// ask user to pick a source folder
-    	File pickedFolder = uiService.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
+		dialog = new MageekDialog(ui.context());
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		
+		dialog.addBrowseListener(new ActionListener()
+		{
+	         public void actionPerformed(ActionEvent arg0)
+	         {
+	        	dialog.setStatus("Browsing folder ...");
+	            askSourceDirectoryToUser();
+	            
+	            if ( sourceFolder != null )
+	            {
+	            	dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
+	            }
+	            else
+	            {
+	            	dialog.setStatus("Browsing aborted.");
+	            }
+	         }
+	     });
+	      
+		dialog.addLaunchProcessListener(new ActionListener()
+		{
+	         public void actionPerformed(ActionEvent arg0)
+	         {
+	        	dialog.setStatus("Processing ...");
+	            process();
+	            dialog.setStatus("Processing DONE");
+	         }
+	     });
+		
+		dialog.addQuitListener(new ActionListener()
+		{
+	         public void actionPerformed(ActionEvent arg0)
+	         {
+	            showStats();
+	            stop();
+	         }
+	     });
+		
+		dialog.setVisible(true);
+		dialog.setAlwaysOnTop(false);
+    }
+
+	private void process()
+	{
+		if ( sourceFolder != null )
+		{
+			log.log( LogLevel.INFO, String.format("Scanning folder %s ...", sourceFolder.getAbsolutePath()) );
+    		
+        	// TODO: display scan result (extension list) and color presets.
+    		// TODO: process files
+		}
+		else
+		{
+			log.log( LogLevel.ERROR, "No source folder set !");
+		}
+	}
+
+	private void askSourceDirectoryToUser()
+	{
+		// ask user to pick a source folder
+    	File pickedFolder = ui.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
      	if ( pickedFolder == null )
     	{
      		sourceFolder      = null;
      		destinationFolder = null;
-     		logService.log( LogLevel.WARN, "User did not select any folder !");
+     		log.log( LogLevel.TRACE, "User did not select any folder !");
     	}
     	else
     	{
@@ -113,7 +176,7 @@ public class Mageek<T extends RealType<T>> implements Command {
     					destinationFolder.toString()
     					);
 		
-    			DialogPrompt.Result result = uiService.showDialog( message, MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
+    			DialogPrompt.Result result = ui.showDialog( message, MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
     			
     			switch( result )
     			{
@@ -133,19 +196,9 @@ public class Mageek<T extends RealType<T>> implements Command {
     		else
     		{
     			destinationFolder.mkdir();
-    		}
-       		
-    		if ( sourceFolder != null )
-    		{
-    			logService.log( LogLevel.INFO, String.format("Scanning folder %s ...", sourceFolder.getAbsolutePath()) );
-        		logService.log( LogLevel.INFO, "Processing files ...");
-            	// TODO: display scan result (extension list) and color presets.
-        		// TODO: process files
-    		}    		
+    		}	
     	}
-    	showStatistics();
-    	logService.log( LogLevel.INFO, "Mageek Stopped");
-    }
+	}
     
     /**
      * Show the statistics after images have been processed
@@ -154,7 +207,7 @@ public class Mageek<T extends RealType<T>> implements Command {
      * - processed
      * With a good bye message.
      */
-    private void showStatistics()
+    void showStats()
     {
     	String innerMessage;
     	
@@ -186,7 +239,13 @@ public class Mageek<T extends RealType<T>> implements Command {
     			innerMessage
     			);
 
-    	uiService.showDialog( message, "Processing result window", messageType );
+    	ui.showDialog( message, "Processing result window", messageType );
+    }
+    
+    private void stop()
+    {
+    	dialog.setVisible(false);
+    	dialog.dispose();
     }
 
     
