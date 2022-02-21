@@ -11,6 +11,7 @@ import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -25,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import net.imagej.ops.OpService;
@@ -67,7 +69,7 @@ public class MageekDialog extends JDialog {
 	private final JProgressBar progressBar;
 	private final JPanel extensionPanel;
 	private ActionListener extensionCheckedListener;
-	private final JTextArea statusTexArea;
+	private final JTextArea statsTextArea;
 	/**
 	 * Create the dialog.
 	 */
@@ -76,13 +78,26 @@ public class MageekDialog extends JDialog {
 		ctx.inject(this);
 		setBounds(100, 100, 700, 400);
 		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPanel.setLayout(new GridBagLayout());
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 
+		JLabel topLabel = new JLabel("Welcome to Mageek !");
+		JPanel top = new JPanel();
+		top.setLayout(new FlowLayout(FlowLayout.LEFT));
+		top.setBorder(new EmptyBorder(5, 5, 5, 5));
+		top.add(topLabel);
+		getContentPane().add(top, BorderLayout.PAGE_START);
+		
+		JLabel folderLabel = new JLabel("Source folder:");
+		JTextField folderTxt = new JTextField();
 		browseBtn = new JButton("Pick source folder");
-		contentPanel.add(browseBtn);
-
+		JPanel folderPanel = new JPanel();
+		folderPanel.add(folderLabel);
+		folderPanel.add(folderTxt);
+		folderPanel.add(browseBtn);
+		contentPanel.add(folderPanel);
+        
 		processBtn = new JButton("Launch processr");
 		contentPanel.add(processBtn);
 
@@ -95,16 +110,21 @@ public class MageekDialog extends JDialog {
         progressBar = new JProgressBar();
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
-        progressBar.setSize(500, 12);
         JPanel progressPanel = new JPanel();
         progressPanel.add(progressBar);
         contentPanel.add(progressPanel);
-        
-		statusLabel = new JLabel("Welcome to Mageek");
-		contentPanel.add(statusLabel);
 		
-		statusTexArea = new JTextArea(200, 20);
-		contentPanel.add(statusTexArea);
+		statsTextArea = new JTextArea(200, 20);
+		statsTextArea.setEditable(false);
+		statsTextArea.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPanel.add(statsTextArea);
+		
+		statusLabel = new JLabel();
+		JPanel bottom = new JPanel();
+		bottom.setLayout(new FlowLayout(FlowLayout.LEFT));
+		bottom.setBorder(new EmptyBorder(5, 5, 5, 5));
+		bottom.add(statusLabel);
+		getContentPane().add(bottom, BorderLayout.PAGE_END);
 	}
 
 	public void addExtensionCheckedListener(ActionListener listener) {
@@ -124,7 +144,7 @@ public class MageekDialog extends JDialog {
 	}
 
 	public void setStatus(String str) {
-		statusLabel.setText(str);
+		statusLabel.setText( String.format("Status: %s", str));
 	}
 	
 	public void setProgress(int n) {
@@ -159,8 +179,8 @@ public class MageekDialog extends JDialog {
 	}
 
 	public void setStats(String message) {
-		statusTexArea.removeAll();
-		statusTexArea.append(message);
+		statsTextArea.removeAll();
+		statsTextArea.append(message);
 		
 	}
 

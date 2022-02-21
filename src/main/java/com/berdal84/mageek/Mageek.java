@@ -93,7 +93,7 @@ public class Mageek<T extends RealType<T>> implements Command {
     	
 		dialog = new MageekDialog(ui.context());
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		
+		dialog.setStatus("Please select a source directory");
 		dialog.addBrowseListener(new ActionListener()
 		{
 	         public void actionPerformed(ActionEvent arg0)
