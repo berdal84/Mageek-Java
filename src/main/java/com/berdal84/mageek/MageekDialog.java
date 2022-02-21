@@ -9,15 +9,22 @@ package com.berdal84.mageek;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import net.imagej.ops.OpService;
@@ -58,7 +65,9 @@ public class MageekDialog extends JDialog {
 	private final JButton processBtn;
 	private final JLabel statusLabel;
 	private final JProgressBar progressBar;
-
+	private final JPanel extensionPanel;
+	private ActionListener extensionCheckedListener;
+	private final JTextArea statusTexArea;
 	/**
 	 * Create the dialog.
 	 */
@@ -80,17 +89,28 @@ public class MageekDialog extends JDialog {
 		quitBtn = new JButton("Quit");
 		contentPanel.add(quitBtn);
 		
+		extensionPanel = new JPanel();
+		contentPanel.add(extensionPanel);
+		
         progressBar = new JProgressBar();
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
+        progressBar.setSize(500, 12);
         JPanel progressPanel = new JPanel();
         progressPanel.add(progressBar);
         contentPanel.add(progressPanel);
         
 		statusLabel = new JLabel("Welcome to Mageek");
 		contentPanel.add(statusLabel);
+		
+		statusTexArea = new JTextArea(200, 20);
+		contentPanel.add(statusTexArea);
 	}
 
+	public void addExtensionCheckedListener(ActionListener listener) {
+		extensionCheckedListener = listener;
+	}
+	
 	public void addBrowseListener(ActionListener listener) {
 		browseBtn.addActionListener(listener);
 	}
@@ -110,5 +130,39 @@ public class MageekDialog extends JDialog {
 	public void setProgress(int n) {
 		progressBar.setValue(n);
 	}
+	
+	public void setExtensions(String[] extensions) {
+		
+		extensionPanel.removeAll();
+		for( String eachExtension : extensions) {
+			JCheckBox checkbox = new JCheckBox( String.format("*.%s", eachExtension) );
+	        checkbox.setSelected(true);
+	        checkbox.setActionCommand(eachExtension);
+	        checkbox.addActionListener(extensionCheckedListener);
+	        extensionPanel.add(checkbox);
+		}
+	}
+	
+	public void setExtensionVisible(boolean visible) {
+		extensionPanel.setVisible(visible);
+	}
+
+	public List<String> getCheckedExtensions() {
+		List<String> result = new ArrayList<String>();
+		for( Component c : extensionPanel.getComponents() ) {
+			JCheckBox cb = (JCheckBox)c;
+			if( cb.isSelected() ) {
+				result.add(cb.getActionCommand());
+			}
+		}
+		return result;
+	}
+
+	public void setStats(String message) {
+		statusTexArea.removeAll();
+		statusTexArea.append(message);
+		
+	}
+
 
 }

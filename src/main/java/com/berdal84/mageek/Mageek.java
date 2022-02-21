@@ -25,7 +25,11 @@ import org.scijava.log.LogService;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.WindowConstants;
 
@@ -72,13 +76,13 @@ public class Mageek<T extends RealType<T>> implements Command {
     private final String SCRIPT_TITLE = "Mageek";
     
     /* Scanned files */
-    private File scannedFiles[] = {};
+    private ArrayList<File> scannedFiles = new ArrayList<File>();
     
     /* Ignored files */
-    private File ignoredFiles[] = {};
+    private ArrayList<File> ignoredFiles = new ArrayList<File>();
     
     /* Processed files */
-    private File processedFiles[] = {};
+    private ArrayList<File> processedFiles = new ArrayList<File>();
     
     private MageekDialog dialog;
     
@@ -101,6 +105,9 @@ public class Mageek<T extends RealType<T>> implements Command {
 	            {
 	            	dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
 	            	dialog.setProgress(10);
+	            	String[] scannedExtensions = {"czi", "lif", "nd2"};
+	            	dialog.setExtensions(scannedExtensions);
+	            	dialog.setExtensionVisible(true);
 	            }
 	            else
 	            {
@@ -112,33 +119,48 @@ public class Mageek<T extends RealType<T>> implements Command {
 	      
 		dialog.addLaunchProcessListener(new ActionListener()
 		{
-	         public void actionPerformed(ActionEvent arg0)
+	         public void actionPerformed(ActionEvent evt)
 	         {
 	        	dialog.setStatus("Processing ...");
 	            process();
 	            dialog.setStatus("Processing DONE");
 	            dialog.setProgress(100);
+	            showStats();
 	         }
 	     });
 		
 		dialog.addQuitListener(new ActionListener()
 		{
-	         public void actionPerformed(ActionEvent arg0)
+	         public void actionPerformed(ActionEvent evt)
 	         {
-	            showStats();
 	            stop();
 	         }
 	     });
+		
+		dialog.addExtensionCheckedListener(new ActionListener()
+		{
+	         public void actionPerformed(ActionEvent evt)
+	         {
+	            dialog.setStatus(String.format("Extension %s checked/unchecked. Updating file list ...", evt.getActionCommand()));
+	            filterFiles( dialog.getCheckedExtensions() );
+	         }
+	     });
+		
 		
 		dialog.setVisible(true);
 		dialog.setAlwaysOnTop(false);
     }
 
+	protected void filterFiles(List<String> checkedExtensions) {
+		dialog.setStatus(String.format("Filtering files with the following extensions: %s", checkedExtensions.toString()));
+	}
+
 	private void process()
 	{
 		if ( sourceFolder != null )
 		{
-			log.log( LogLevel.INFO, String.format("Scanning folder %s ...", sourceFolder.getAbsolutePath()) );
+			log.log( LogLevel.INFO, String.format("Processing folder %s ...", sourceFolder.getAbsolutePath()) );
+			log.log( LogLevel.INFO, "Processing DONE" );
     		
         	// TODO: display scan result (extension list) and color presets.
     		// TODO: process files
@@ -228,9 +250,9 @@ public class Mageek<T extends RealType<T>> implements Command {
     				SCRIPT_TITLE,
     				sourceFolder.toString(),
     				destinationFolder.toString(),
-    				scannedFiles.length,
-    				ignoredFiles.length,
-    				processedFiles.length
+    				scannedFiles.size(),
+    				ignoredFiles.size(),
+    				processedFiles.size()
     				);
         	
         	messageType = MessageType.INFORMATION_MESSAGE;
@@ -242,7 +264,7 @@ public class Mageek<T extends RealType<T>> implements Command {
     			innerMessage
     			);
 
-    	ui.showDialog( message, "Processing result window", messageType );
+    	dialog.setStats(message);
     }
     
     private void stop()
