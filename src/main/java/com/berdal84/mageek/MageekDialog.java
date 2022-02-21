@@ -10,12 +10,14 @@ package com.berdal84.mageek;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 
 import net.imagej.ops.OpService;
@@ -55,15 +57,17 @@ public class MageekDialog extends JDialog {
 	private final JButton quitBtn;
 	private final JButton processBtn;
 	private final JLabel statusLabel;
+	private final JProgressBar progressBar;
 
 	/**
 	 * Create the dialog.
 	 */
-	public MageekDialog(final Context ctx) {
+	public MageekDialog(final Context ctx)
+	{
 		ctx.inject(this);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 700, 400);
 		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setLayout(new FlowLayout());
+		contentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 
@@ -75,10 +79,16 @@ public class MageekDialog extends JDialog {
 
 		quitBtn = new JButton("Quit");
 		contentPanel.add(quitBtn);
-
+		
+        progressBar = new JProgressBar();
+        progressBar.setValue(0);
+        progressBar.setStringPainted(true);
+        JPanel progressPanel = new JPanel();
+        progressPanel.add(progressBar);
+        contentPanel.add(progressPanel);
+        
 		statusLabel = new JLabel("Welcome to Mageek");
 		contentPanel.add(statusLabel);
-
 	}
 
 	public void addBrowseListener(ActionListener listener) {
@@ -95,6 +105,10 @@ public class MageekDialog extends JDialog {
 
 	public void setStatus(String str) {
 		statusLabel.setText(str);
+	}
+	
+	public void setProgress(int n) {
+		progressBar.setValue(n);
 	}
 
 }

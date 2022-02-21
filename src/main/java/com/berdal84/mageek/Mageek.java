@@ -100,10 +100,12 @@ public class Mageek<T extends RealType<T>> implements Command {
 	            if ( sourceFolder != null )
 	            {
 	            	dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
+	            	dialog.setProgress(10);
 	            }
 	            else
 	            {
 	            	dialog.setStatus("Browsing aborted.");
+	            	dialog.setProgress(0);
 	            }
 	         }
 	     });
@@ -115,6 +117,7 @@ public class Mageek<T extends RealType<T>> implements Command {
 	        	dialog.setStatus("Processing ...");
 	            process();
 	            dialog.setStatus("Processing DONE");
+	            dialog.setProgress(100);
 	         }
 	     });
 		
