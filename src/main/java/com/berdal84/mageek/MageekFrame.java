@@ -55,12 +55,14 @@ import org.scijava.ui.UIService;
  *
  * @author berenger
  */
-public class MageekFrame extends javax.swing.JFrame {
+public class MageekFrame extends javax.swing.JFrame
+{
 
     /**
      * Creates new form MageekFrame
      */
-    public MageekFrame(final Context ctx) {
+    public MageekFrame(final Context ctx)
+    {
         ctx.inject(this);
         initComponents();
     }
@@ -279,38 +281,42 @@ public class MageekFrame extends javax.swing.JFrame {
 
     private ActionListener extensionCheckedListener;
 
-    public TreePath getTreeRoot(){
-        return tree.getPathForRow(0);
-    }
-    
-    public void addExtensionCheckedListener(ActionListener listener) {
+    public void addExtensionCheckedListener(ActionListener listener)
+    {
         extensionCheckedListener = listener;
     }
 
-    public void addBrowseListener(ActionListener listener) {
+    public void addBrowseListener(ActionListener listener)
+    {
         browseBtn.addActionListener(listener);
     }
-        
-    public void addLaunchProcessListener(ActionListener listener) {
+
+    public void addLaunchProcessListener(ActionListener listener)
+    {
         processBtn.addActionListener(listener);
     }
 
-    public void setStatus(String str) {
+    public void setStatus(String str)
+    {
         statusLabel.setText(String.format("Status: %s", str));
     }
 
-    public void setProgress(int n) {
+    public void setProgress(int n)
+    {
         progressBar.setValue(n);
     }
 
-    public void setSourceDirectory(String path) {
+    public void setSourceDirectory(String path)
+    {
         sourceDirectoryTextEdit.setText(path);
     }
 
-    public void setExtensions(String[] extensions) {
-
+    public void setExtensions(String[] extensions)
+    {
         extensionPanel.removeAll();
-        for (String eachExtension : extensions) {
+        
+        for (String eachExtension : extensions)
+        {
             JCheckBox checkbox = new JCheckBox(String.format("*.%s", eachExtension));
             checkbox.setSelected(true);
             checkbox.setActionCommand(eachExtension);
@@ -319,37 +325,49 @@ public class MageekFrame extends javax.swing.JFrame {
         }
     }
 
-    public void setExtensionVisible(boolean visible) {
+    public void setExtensionVisible(boolean visible)
+    {
         extensionPanel.setVisible(visible);
     }
 
-    public List<String> getCheckedExtensions() {
+    public List<String> getCheckedExtensions()
+    {
         List<String> result = new ArrayList<String>();
-        for (Component c : extensionPanel.getComponents()) {
+        
+        for (Component c : extensionPanel.getComponents())
+        {
             JCheckBox cb = (JCheckBox) c;
-            if (cb.isSelected()) {
+            if (cb.isSelected())
+            {
                 result.add(cb.getActionCommand());
             }
         }
+        
         return result;
     }
 
-    public void setStats(String message) {
+    public void setStats(String message)
+    {
         statsTextArea.removeAll();
         statsTextArea.setText(message);
     }
 
-    void clearFileList() {
+    void clearFileList()
+    {
         fileTextArea.removeAll();
-    };
+    }
     
-    void setFileList(ArrayList<File> scannedFiles) {
+    void setFileList(ArrayList<File> scannedFiles)
+    {
         fileTextArea.removeAll();
         StringBuilder sb = new StringBuilder();
-        scannedFiles.forEach( (each) -> {
-            sb.append(each);
+        
+        scannedFiles.forEach((each) ->
+        {
+            sb.append(each.toString());
             sb.append('\n');
         });
+        
         fileTextArea.setText(sb.toString());
     };
-}
+};

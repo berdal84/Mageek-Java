@@ -29,34 +29,44 @@ import java.io.File;
  *
  * @author berenger
  */
-public class FileHelper {
+public class FileHelper
+{
 
     /**
      * Delete a folder and its content recursively
+     *
      * @param _directory the folder to empty
      * @param _self if false the directory will be kept
      * @return the number of files deleted.
      */
-    public static int deleteDirectoryContent(File _directory, boolean _self) {
-        
+    public static int deleteDirectoryContent(File _directory, boolean _self)
+    {
+
         File[] content = _directory.listFiles();
         int deletedFileCount = 0;
-        
-        if (content != null) {
-            for (File file : content) {
-                if( file.isDirectory()){
+
+        if (content != null)
+        {
+            for (File file : content)
+            {
+                if (file.isDirectory())
+                {
                     deletedFileCount += deleteDirectoryContent(file, true);
-                } else {
+                }
+                else
+                {
                     file.delete();
                     deletedFileCount++;
                 }
-                
+
             }
         }
-        if (_self) {
+        
+        if (_self)
+        {
             _directory.delete();
         }
-        
+
         return deletedFileCount;
     }
 }
