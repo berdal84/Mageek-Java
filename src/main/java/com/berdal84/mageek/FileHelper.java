@@ -24,6 +24,8 @@
 package com.berdal84.mageek;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -32,6 +34,45 @@ import java.io.File;
 public class FileHelper
 {
 
+    public static ArrayList<String> getFileExtensions(ArrayList<File> _files)
+    {
+        ArrayList<String> result = new ArrayList();
+        
+        result.add("czi");
+        result.add("lif");
+        result.add("nd2");
+        
+        return result;
+    }
+    
+    public static ArrayList<File> getFiles(File _directory, boolean _recursively)
+    {
+        ArrayList<File> result = new ArrayList<>();
+        File[] content = _directory.listFiles();
+
+        if (content != null)
+        {
+            for (File file : content)
+            {
+                if (file.isDirectory() )
+                {
+                    if ( _recursively )
+                    {
+                        ArrayList<File> subFolderFiles = getFiles(file, true);
+                        result.addAll( subFolderFiles );
+                    }                        
+                }
+                else
+                {
+                    result.add(file);
+                }
+
+            }
+        }
+
+        return result;
+    }
+    
     /**
      * Delete a folder and its content recursively
      *

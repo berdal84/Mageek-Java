@@ -76,6 +76,9 @@ public class Mageek<T extends RealType<T>> implements Command
     /* The script title */
     private final String SCRIPT_VERSION = "1.0.0";
 
+    /* Scanned extensions */
+    private ArrayList<String> scannedFileExtensions = new ArrayList<String>();
+    
     /* Scanned files */
     private ArrayList<File> scannedFiles = new ArrayList<File>();
 
@@ -114,16 +117,16 @@ public class Mageek<T extends RealType<T>> implements Command
                                     sourceFolder.toString()
                             )
                     );
-                    dialog.setSourceDirectory(sourceFolder.toString());
                     dialog.setProgress(10);
-                    String[] scannedExtensions =
-                    {
-                        "czi", "lif", "nd2"
-                    };
-                    dialog.setExtensions(scannedExtensions);
-                    dialog.setExtensionVisible(true);
+                    
+                    dialog.setSourceDirectory(sourceFolder.toString());
+                    
+                    scannedFiles = FileHelper.getFiles(sourceFolder, true);
                     dialog.setFileList(scannedFiles);
-
+                    
+                    scannedFileExtensions = FileHelper.getFileExtensions( scannedFiles );
+                    dialog.setExtensions(scannedFileExtensions);
+                    dialog.setExtensionVisible(true);
                 }
                 else
                 {

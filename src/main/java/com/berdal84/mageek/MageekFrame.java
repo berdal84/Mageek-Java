@@ -311,7 +311,7 @@ public class MageekFrame extends javax.swing.JFrame
         sourceDirectoryTextEdit.setText(path);
     }
 
-    public void setExtensions(String[] extensions)
+    public void setExtensions(ArrayList<String> extensions)
     {
         extensionPanel.removeAll();
         
