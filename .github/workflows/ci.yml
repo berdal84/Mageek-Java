@@ -28,5 +28,5 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.3.1
       with:
-        name: Mageek
+        name: Mageek-Plugin
         path: target/*.jar
