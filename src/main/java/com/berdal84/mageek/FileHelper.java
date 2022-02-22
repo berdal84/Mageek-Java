@@ -35,6 +35,11 @@ import org.apache.commons.io.FilenameUtils;
 public class FileHelper
 {
 
+    /**
+     * Get file extensions from a file list.
+     * @param _files
+     * @return 
+     */
     public static ArrayList<String> getFileExtensions(ArrayList<File> _files)
     {
         ArrayList<String> result = new ArrayList();
@@ -42,8 +47,8 @@ public class FileHelper
         _files.forEach((File _eachFile)->
         {
             String extension = FilenameUtils.getExtension(_eachFile.getName());
-            if ( extension != null )
-            {
+            if ( extension != null && !result.contains(extension) )
+            {                
                 result.add(extension);
             }
         });
@@ -51,6 +56,12 @@ public class FileHelper
         return result;
     }
     
+    /**
+     * Get files from a directory recursively or not
+     * @param _directory
+     * @param _recursively
+     * @return 
+     */
     public static ArrayList<File> getFiles(File _directory, boolean _recursively)
     {
         ArrayList<File> result = new ArrayList<>();
