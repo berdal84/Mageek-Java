@@ -26,6 +26,7 @@ package com.berdal84.mageek;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  *
@@ -37,11 +38,16 @@ public class FileHelper
     public static ArrayList<String> getFileExtensions(ArrayList<File> _files)
     {
         ArrayList<String> result = new ArrayList();
-        
-        result.add("czi");
-        result.add("lif");
-        result.add("nd2");
-        
+
+        _files.forEach((File _eachFile)->
+        {
+            String extension = FilenameUtils.getExtension(_eachFile.getName());
+            if ( extension != null )
+            {
+                result.add(extension);
+            }
+        });
+
         return result;
     }
     
