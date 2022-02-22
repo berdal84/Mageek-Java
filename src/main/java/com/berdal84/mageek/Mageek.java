@@ -5,7 +5,6 @@
  * See the CC0 1.0 Universal license for details:
  *     http://creativecommons.org/publicdomain/zero/1.0/
  */
-
 package com.berdal84.mageek;
 
 import net.imagej.ImageJ;
@@ -25,44 +24,39 @@ import org.scijava.log.LogService;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.WindowConstants;
 
-
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
- * 
- * This plugin allows to process files by selecting a source directory.
- * The process will:
- * - scan recursively the folder
- * - display a scan result to let the user to choose which file extension to process, and which colors to use,
- * - importing each file's series,
- * - splitting each series's channel,
- * - applying a Z projection (to combine all slices),
- * - colorize each channel,
- * - save result to a "ANALYZED" folder.
+ *
+ * This plugin allows to process files by selecting a source directory. The
+ * process will: - scan recursively the folder - display a scan result to let
+ * the user to choose which file extension to process, and which colors to use,
+ * - importing each file's series, - splitting each series's channel, - applying
+ * a Z projection (to combine all slices), - colorize each channel, - save
+ * result to a "ANALYZED" folder.
  */
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
 public class Mageek<T extends RealType<T>> implements Command {
 
-	
     @Parameter
     private UIService ui;
 
     @Parameter
     private OpService op;
-    
+
     @Parameter
     private LogService log;
-    
+
     /* The current source folder */
     private File sourceFolder;
-    
+
     /* The current destination folder */
     private File destinationFolder;
 
@@ -71,213 +65,204 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     /* Subfolder name to put all analysed files */
     private final String ANALYSED_SUBFOLDER_PATH = "ANALYSED";
-    
+
     /* The script title */
     private final String SCRIPT_TITLE = "Mageek";
-    
+
     /* Scanned files */
     private ArrayList<File> scannedFiles = new ArrayList<File>();
-    
+
     /* Ignored files */
     private ArrayList<File> ignoredFiles = new ArrayList<File>();
-    
+
     /* Processed files */
     private ArrayList<File> processedFiles = new ArrayList<File>();
-    
-    private MageekDialog dialog;
-    
+
+    private MageekFrame dialog;
+
     @Override
-    public void run()
-    {    
-    	log.log( LogLevel.INFO, "Running Mageek ...");
-    	
-		dialog = new MageekDialog(ui.context());
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		dialog.setStatus("Please select a source directory");
-		dialog.addBrowseListener(new ActionListener()
-		{
-	         public void actionPerformed(ActionEvent arg0)
-	         {
-	        	dialog.setStatus("Browsing folder ...");
-	            askSourceDirectoryToUser();
-	            
-	            if ( sourceFolder != null )
-	            {
-	            	dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
-	            	dialog.setProgress(10);
-	            	String[] scannedExtensions = {"czi", "lif", "nd2"};
-	            	dialog.setExtensions(scannedExtensions);
-	            	dialog.setExtensionVisible(true);
-	            }
-	            else
-	            {
-	            	dialog.setStatus("Browsing aborted.");
-	            	dialog.setProgress(0);
-	            }
-	         }
-	     });
-	      
-		dialog.addLaunchProcessListener(new ActionListener()
-		{
-	         public void actionPerformed(ActionEvent evt)
-	         {
-	        	dialog.setStatus("Processing ...");
-	            process();
-	            dialog.setStatus("Processing DONE");
-	            dialog.setProgress(100);
-	            showStats();
-	         }
-	     });
-		
-		dialog.addQuitListener(new ActionListener()
-		{
-	         public void actionPerformed(ActionEvent evt)
-	         {
-	            stop();
-	         }
-	     });
-		
-		dialog.addExtensionCheckedListener(new ActionListener()
-		{
-	         public void actionPerformed(ActionEvent evt)
-	         {
-	            dialog.setStatus(String.format("Extension %s checked/unchecked. Updating file list ...", evt.getActionCommand()));
-	            filterFiles( dialog.getCheckedExtensions() );
-	         }
-	     });
-		
-		
-		dialog.setVisible(true);
-		dialog.setAlwaysOnTop(false);
+    public void run() {
+        log.log(LogLevel.INFO, "Running Mageek ...");
+
+        dialog = new MageekFrame(ui.context());
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setStatus("Please select a source directory");
+        dialog.addBrowseListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                dialog.setStatus("Browsing folder ...");
+                askSourceDirectoryToUser();
+
+                if (sourceFolder != null) {
+                    dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
+                    dialog.setProgress(10);
+                    String[] scannedExtensions = {"czi", "lif", "nd2"};
+                    dialog.setExtensions(scannedExtensions);
+                    dialog.setExtensionVisible(true);
+                } else {
+                    dialog.setStatus("Browsing aborted.");
+                    dialog.setProgress(0);
+                }
+            }
+        });
+
+        dialog.addLaunchProcessListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                dialog.setStatus("Processing ...");
+                process();
+                dialog.setStatus("Processing DONE");
+                dialog.setProgress(100);
+                showStats();
+            }
+        });
+
+        dialog.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                log.info("Mageek is stopped.");
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
+
+        });
+
+        dialog.addExtensionCheckedListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                dialog.setStatus(String.format("Extension %s checked/unchecked. Updating file list ...", evt.getActionCommand()));
+                filterFiles(dialog.getCheckedExtensions());
+            }
+        });
+
+        dialog.setVisible(true);
+        dialog.setAlwaysOnTop(false);
     }
 
-	protected void filterFiles(List<String> checkedExtensions) {
-		dialog.setStatus(String.format("Filtering files with the following extensions: %s", checkedExtensions.toString()));
-	}
+    protected void filterFiles(List<String> checkedExtensions) {
+        dialog.setStatus(String.format("Filtering files with the following extensions: %s", checkedExtensions.toString()));
+    }
 
-	private void process()
-	{
-		if ( sourceFolder != null )
-		{
-			log.log( LogLevel.INFO, String.format("Processing folder %s ...", sourceFolder.getAbsolutePath()) );
-			log.log( LogLevel.INFO, "Processing DONE" );
-    		
-        	// TODO: display scan result (extension list) and color presets.
-    		// TODO: process files
-		}
-		else
-		{
-			log.log( LogLevel.ERROR, "No source folder set !");
-		}
-	}
+    private void process() {
+        if (sourceFolder != null) {
+            log.log(LogLevel.INFO, String.format("Processing folder %s ...", sourceFolder.getAbsolutePath()));
+            log.log(LogLevel.INFO, "Processing DONE");
 
-	private void askSourceDirectoryToUser()
-	{
-		// ask user to pick a source folder
-    	File pickedFolder = ui.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
-     	if ( pickedFolder == null )
-    	{
-     		sourceFolder      = null;
-     		destinationFolder = null;
-     		log.log( LogLevel.TRACE, "User did not select any folder !");
-    	}
-    	else
-    	{
-    		sourceFolder = pickedFolder;
-    		
-    		String destFolderPath = String.format(
-    				"%s%s%s",
-    				sourceFolder.getAbsolutePath(),
-    				File.separator,
-    				ANALYSED_SUBFOLDER_PATH
-    				);
+            // TODO: display scan result (extension list) and color presets.
+            // TODO: process files
+        } else {
+            log.log(LogLevel.ERROR, "No source folder set !");
+        }
+    }
 
-    		destinationFolder = new File( destFolderPath );
-    		
-    		if ( destinationFolder.exists() )
-    		{
-    			String message = String.format(
-    					"Output directory %s already exists.\nDo you want to erase its content before to launch the process ?",
-    					destinationFolder.toString()
-    					);
-		
-    			DialogPrompt.Result result = ui.showDialog( message, MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
-    			
-    			switch( result )
-    			{
-    			case YES_OPTION:
-    				Mageek.deleteDirectory(destinationFolder, false);
-    				break;
-    				
-    			case NO_OPTION:
-    				break;
-    				
-    			case CANCEL_OPTION:
-    				destinationFolder = null;
-    				sourceFolder = null;
-    				break;
-    			}   			
-    		}    		
-    		else
-    		{
-    			destinationFolder.mkdir();
-    		}	
-    	}
-	}
-    
+    private void askSourceDirectoryToUser() {
+        // ask user to pick a source folder
+        File pickedFolder = ui.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
+        if (pickedFolder == null) {
+            sourceFolder = null;
+            destinationFolder = null;
+            log.log(LogLevel.TRACE, "User did not select any folder !");
+        } else {
+            sourceFolder = pickedFolder;
+
+            String destFolderPath = String.format(
+                    "%s%s%s",
+                    sourceFolder.getAbsolutePath(),
+                    File.separator,
+                    ANALYSED_SUBFOLDER_PATH
+            );
+
+            destinationFolder = new File(destFolderPath);
+
+            if (destinationFolder.exists()) {
+                String message = String.format(
+                        "Output directory %s already exists.\nDo you want to erase its content before to launch the process ?",
+                        destinationFolder.toString()
+                );
+
+                DialogPrompt.Result result = ui.showDialog(message, MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
+
+                switch (result) {
+                    case YES_OPTION:
+                        Mageek.deleteDirectory(destinationFolder, false);
+                        break;
+
+                    case NO_OPTION:
+                        break;
+
+                    case CANCEL_OPTION:
+                        destinationFolder = null;
+                        sourceFolder = null;
+                        break;
+                }
+            } else {
+                destinationFolder.mkdir();
+            }
+        }
+    }
+
     /**
-     * Show the statistics after images have been processed
-     * - scanned
-     * - ignored
-     * - processed
-     * With a good bye message.
+     * Show the statistics after images have been processed - scanned - ignored
+     * - processed With a good bye message.
      */
-    void showStats()
-    {
-    	String innerMessage;
-    	
-    	MessageType messageType;    	
-    	
-    	if ( this.sourceFolder == null)
-    	{
-    		innerMessage = "Nothing to process ...";
-    		messageType = MessageType.INFORMATION_MESSAGE;
-    	}
-    	else
-    	{
-    		innerMessage = String.format(
-    				"%s processed the folder %s.\nOutput file(s) were generated into %s.\n\nResume:\n - scanned: %d file(s)\n - ignored: %d file(s)\n - processed: %d file(s)",
-    				SCRIPT_TITLE,
-    				sourceFolder.toString(),
-    				destinationFolder.toString(),
-    				scannedFiles.size(),
-    				ignoredFiles.size(),
-    				processedFiles.size()
-    				);
-        	
-        	messageType = MessageType.INFORMATION_MESSAGE;
-    	}
-    	
-    	
-    	String message = String.format(
-    			"%s\n\n\t\tHasta la vista, baby. ^^",
-    			innerMessage
-    			);
+    void showStats() {
+        String innerMessage;
 
-    	dialog.setStats(message);
-    }
-    
-    private void stop()
-    {
-    	dialog.setVisible(false);
-    	dialog.dispose();
+        MessageType messageType;
+
+        if (this.sourceFolder == null) {
+            innerMessage = "Nothing to process ...";
+            messageType = MessageType.INFORMATION_MESSAGE;
+        } else {
+            innerMessage = String.format(
+                    "%s processed the folder %s.\nOutput file(s) were generated into %s.\n\nResume:\n - scanned: %d file(s)\n - ignored: %d file(s)\n - processed: %d file(s)",
+                    SCRIPT_TITLE,
+                    sourceFolder.toString(),
+                    destinationFolder.toString(),
+                    scannedFiles.size(),
+                    ignoredFiles.size(),
+                    processedFiles.size()
+            );
+
+            messageType = MessageType.INFORMATION_MESSAGE;
+        }
+
+        String message = String.format(
+                "%s\n\n\t\tHasta la vista, baby. ^^",
+                innerMessage
+        );
+
+        dialog.setStats(message);
     }
 
-    
+    private void stop() {
+        dialog.setVisible(false);
+        dialog.dispose();
+    }
+
     /**
-     * This main function serves for development purposes.
-     * It allows you to run the plugin immediately out of
-     * your integrated development environment (IDE).
+     * This main function serves for development purposes. It allows you to run
+     * the plugin immediately out of your integrated development environment
+     * (IDE).
      *
      * @param args whatever, it's ignored
      * @throws Exception
@@ -288,7 +273,7 @@ public class Mageek<T extends RealType<T>> implements Command {
         ij.ui().showUI();
         ij.command().run(Mageek.class, true);
     }
-    
+
     private static void deleteDirectory(File directoryToBeDeleted, boolean self) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
@@ -296,8 +281,9 @@ public class Mageek<T extends RealType<T>> implements Command {
                 Mageek.deleteDirectory(file, true);
             }
         }
-        if ( self)
-        	directoryToBeDeleted.delete();
+        if (self) {
+            directoryToBeDeleted.delete();
+        }
     }
 
 }
