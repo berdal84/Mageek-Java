@@ -29,8 +29,11 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JTree;
 
 import javax.swing.WindowConstants;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
@@ -81,6 +84,7 @@ public class Mageek<T extends RealType<T>> implements Command {
     /* Processed files */
     private ArrayList<File> processedFiles = new ArrayList<File>();
 
+    /* The main UI */
     private MageekFrame dialog;
 
     @Override
@@ -95,6 +99,7 @@ public class Mageek<T extends RealType<T>> implements Command {
         dialog.addBrowseListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 dialog.setStatus("Browsing folder ...");
+              
                 askSourceDirectoryToUser();
 
                 if (sourceFolder != null) {
@@ -103,10 +108,13 @@ public class Mageek<T extends RealType<T>> implements Command {
                     dialog.setProgress(10);
                     String[] scannedExtensions = {"czi", "lif", "nd2"};
                     dialog.setExtensions(scannedExtensions);
-                    dialog.setExtensionVisible(true);
+                    dialog.setExtensionVisible(true);                    
+                    dialog.setFileList(scannedFiles);
+                    
                 } else {
                     dialog.setStatus("Browsing aborted.");
                     dialog.setProgress(0);
+                    dialog.clearFileList();
                 }
             }
         });
@@ -209,7 +217,7 @@ public class Mageek<T extends RealType<T>> implements Command {
 
                 switch (result) {
                     case YES_OPTION:
-                        Mageek.deleteDirectory(destinationFolder, false);
+                        FileHelper.deleteDirectoryContent(destinationFolder, false);
                         break;
 
                     case NO_OPTION:
@@ -278,18 +286,6 @@ public class Mageek<T extends RealType<T>> implements Command {
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
         ij.command().run(Mageek.class, true);
-    }
-
-    private static void deleteDirectory(File directoryToBeDeleted, boolean self) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                Mageek.deleteDirectory(file, true);
-            }
-        }
-        if (self) {
-            directoryToBeDeleted.delete();
-        }
     }
 
 }
