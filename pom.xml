@@ -30,6 +30,14 @@
           <url>http://www.opensource.org/licenses/mit-license.php</url>
         </license>
 	</licenses>
+        
+        <distributionManagement>
+            <repository>
+              <id>github</id>
+              <name>GitHub Packages</name>
+              <url>https://maven.pkg.github.com/berdal84/Mageek-Java</url>
+            </repository>
+        </distributionManagement>
 
 	<developers>
 
