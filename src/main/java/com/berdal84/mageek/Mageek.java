@@ -108,7 +108,12 @@ public class Mageek<T extends RealType<T>> implements Command
 
                 if (sourceFolder != null)
                 {
-                    dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
+                    dialog.setStatus(
+                            String.format(
+                                    "Source folder %s picked. Click on process now.",
+                                    sourceFolder.toString()
+                            )
+                    );
                     dialog.setSourceDirectory(sourceFolder.toString());
                     dialog.setProgress(10);
                     String[] scannedExtensions =
@@ -185,7 +190,12 @@ public class Mageek<T extends RealType<T>> implements Command
         {
             public void actionPerformed(ActionEvent evt)
             {
-                dialog.setStatus(String.format("Extension %s checked/unchecked. Updating file list ...", evt.getActionCommand()));
+                dialog.setStatus(
+                    String.format(
+                        "Extension %s checked/unchecked. Updating file list ...",
+                        evt.getActionCommand()
+                    )
+                );
                 filterFiles(dialog.getCheckedExtensions());
             }
         });
@@ -196,14 +206,25 @@ public class Mageek<T extends RealType<T>> implements Command
 
     protected void filterFiles(List<String> checkedExtensions)
     {
-        dialog.setStatus(String.format("Filtering files with the following extensions: %s", checkedExtensions.toString()));
+        dialog.setStatus(
+            String.format(
+                "Filtering files with the following extensions: %s",
+                checkedExtensions.toString()
+            )
+        );
     }
 
     private void process()
     {
         if (sourceFolder != null)
         {
-            log.log(LogLevel.INFO, String.format("Processing folder %s ...", sourceFolder.getAbsolutePath()));
+            log.log(
+                LogLevel.INFO,
+                String.format(
+                        "Processing folder %s ...",
+                        sourceFolder.getAbsolutePath()
+                )
+            );
             log.log(LogLevel.INFO, "Processing DONE");
 
             // TODO: display scan result (extension list) and color presets.
@@ -219,6 +240,7 @@ public class Mageek<T extends RealType<T>> implements Command
     {
         // ask user to pick a source folder
         File pickedFolder = ui.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
+        
         if (pickedFolder == null)
         {
             sourceFolder = null;
@@ -245,7 +267,12 @@ public class Mageek<T extends RealType<T>> implements Command
                         destinationFolder.toString()
                 );
 
-                DialogPrompt.Result result = ui.showDialog(message, MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
+                DialogPrompt.Result result =
+                    ui.showDialog(
+                        message,
+                        MessageType.QUESTION_MESSAGE,
+                        OptionType.YES_NO_CANCEL_OPTION
+                    );
 
                 switch (result)
                 {
