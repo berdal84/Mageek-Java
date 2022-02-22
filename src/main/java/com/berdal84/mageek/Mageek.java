@@ -69,6 +69,9 @@ public class Mageek<T extends RealType<T>> implements Command {
     /* The script title */
     private final String SCRIPT_TITLE = "Mageek";
 
+    /* The script title */
+    private final String SCRIPT_VERSION = "1.0.0";
+    
     /* Scanned files */
     private ArrayList<File> scannedFiles = new ArrayList<File>();
 
@@ -82,11 +85,13 @@ public class Mageek<T extends RealType<T>> implements Command {
 
     @Override
     public void run() {
-        log.log(LogLevel.INFO, "Running Mageek ...");
+        log.log(LogLevel.INFO, String.format("Running %s ...", SCRIPT_TITLE ));
 
         dialog = new MageekFrame(ui.context());
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        dialog.setStatus("Please select a source directory");
+        dialog.setStatus( String.format("Welcome to %s v%s", SCRIPT_TITLE, SCRIPT_VERSION) );
+        dialog.setSourceDirectory("Select a source directory ...");
+        
         dialog.addBrowseListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 dialog.setStatus("Browsing folder ...");
@@ -94,6 +99,7 @@ public class Mageek<T extends RealType<T>> implements Command {
 
                 if (sourceFolder != null) {
                     dialog.setStatus("Source folder " + sourceFolder.toString() + " picked. Click on process now.");
+                    dialog.setSourceDirectory(sourceFolder.toString());
                     dialog.setProgress(10);
                     String[] scannedExtensions = {"czi", "lif", "nd2"};
                     dialog.setExtensions(scannedExtensions);

@@ -103,19 +103,17 @@
               <Component id="jSeparator1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="cancelBtn" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Component id="processBtn" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
-                  </Group>
                   <Component id="batchCheckBox" min="-2" max="-2" attributes="0"/>
+                  <Component id="cancelBtn" alignment="0" min="-2" pref="28" max="-2" attributes="0"/>
+                  <Component id="processBtn" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="progressBar" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane2" min="-2" pref="123" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="jScrollPane2" min="-2" pref="146" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="statusLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="12" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -172,6 +170,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="sourceDirectoryTextEdit">
       <Properties>
+        <Property name="editable" type="boolean" value="false"/>
         <Property name="text" type="java.lang.String" value="/Users/berenger/"/>
       </Properties>
     </Component>
@@ -200,7 +199,6 @@
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="null"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Files processed!&#xa;&#xa;Resume:&#xa;- scanned: 4 files&#xa;- ignored: 2 files&#xa;- processed: 2 files&#xa;&#xa;Hasta la vista, baby. ^^"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -223,6 +221,9 @@
       </Properties>
     </Component>
     <Container class="javax.swing.JPanel" name="extensionPanel">
+      <Properties>
+        <Property name="autoscrolls" type="boolean" value="true"/>
+      </Properties>
 
       <Layout>
         <DimensionLayout dim="0">
