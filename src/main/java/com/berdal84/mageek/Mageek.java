@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTree;
@@ -90,6 +91,8 @@ public class Mageek<T extends RealType<T>> implements Command
 
     /* The main UI */
     private MageekFrame dialog;
+    
+    private String[] SELECTED_EXTENSIONS_DEFAULT = {"*.czi", "*.lif", "*.nd2"};
 
     @Override
     public void run()
@@ -126,7 +129,7 @@ public class Mageek<T extends RealType<T>> implements Command
                     
                     scannedFileExtensions = FileHelper.getFileExtensions( scannedFiles );
                     dialog.setExtensions(scannedFileExtensions);
-                    dialog.setExtensionVisible(true);
+                    dialog.setSelectedExtensions(SELECTED_EXTENSIONS_DEFAULT);
                 }
                 else
                 {

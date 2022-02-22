@@ -32,6 +32,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -74,9 +75,12 @@ public class MageekFrame extends javax.swing.JFrame
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jFileChooser1 = new javax.swing.JFileChooser();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
         progressBar = new javax.swing.JProgressBar();
         batchCheckBox = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
@@ -91,9 +95,18 @@ public class MageekFrame extends javax.swing.JFrame
         fileTextArea = new javax.swing.JTextPane();
         jLabel4 = new javax.swing.JLabel();
         statusLabel = new javax.swing.JLabel();
-        extensionPanel = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         statsTextArea = new javax.swing.JTextPane();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        extensionList = new javax.swing.JList<>();
+
+        jList1.setModel(new javax.swing.AbstractListModel<String>()
+        {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(jList1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -103,8 +116,10 @@ public class MageekFrame extends javax.swing.JFrame
         batchCheckBox.setSelected(true);
         batchCheckBox.setText("Batch");
         batchCheckBox.setToolTipText("Enable by default, will process the images in background (faster).");
-        batchCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        batchCheckBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 batchCheckBoxActionPerformed(evt);
             }
         });
@@ -135,22 +150,12 @@ public class MageekFrame extends javax.swing.JFrame
         statusLabel.setBackground(new java.awt.Color(153, 153, 153));
         statusLabel.setText("Status: Please select a source folder");
 
-        extensionPanel.setAutoscrolls(true);
-
-        javax.swing.GroupLayout extensionPanelLayout = new javax.swing.GroupLayout(extensionPanel);
-        extensionPanel.setLayout(extensionPanelLayout);
-        extensionPanelLayout.setHorizontalGroup(
-            extensionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 104, Short.MAX_VALUE)
-        );
-        extensionPanelLayout.setVerticalGroup(
-            extensionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 150, Short.MAX_VALUE)
-        );
-
         statsTextArea.setEditable(false);
         statsTextArea.setBorder(null);
         jScrollPane3.setViewportView(statsTextArea);
+
+        extensionList.setModel(listModel);
+        jScrollPane4.setViewportView(extensionList);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -172,12 +177,12 @@ public class MageekFrame extends javax.swing.JFrame
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(extensionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane2))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -210,10 +215,10 @@ public class MageekFrame extends javax.swing.JFrame
                     .addComponent(jLabel1)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(extensionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4))
+                .addGap(10, 10, 10)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -244,15 +249,18 @@ public class MageekFrame extends javax.swing.JFrame
     private javax.swing.JCheckBox batchCheckBox;
     private javax.swing.JButton browseBtn;
     private javax.swing.JButton cancelBtn;
-    private javax.swing.JPanel extensionPanel;
+    private javax.swing.JList<String> extensionList;
     private javax.swing.JTextPane fileTextArea;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton processBtn;
     private javax.swing.JProgressBar progressBar;
@@ -281,6 +289,8 @@ public class MageekFrame extends javax.swing.JFrame
 
     private ActionListener extensionCheckedListener;
 
+    private DefaultListModel listModel = new DefaultListModel();
+    
     public void addExtensionCheckedListener(ActionListener listener)
     {
         extensionCheckedListener = listener;
@@ -313,36 +323,17 @@ public class MageekFrame extends javax.swing.JFrame
 
     public void setExtensions(ArrayList<String> extensions)
     {
-        extensionPanel.removeAll();
+        extensionList.removeAll();
         
         for (String eachExtension : extensions)
         {
-            JCheckBox checkbox = new JCheckBox(String.format("*.%s", eachExtension));
-            checkbox.setSelected(true);
-            checkbox.setActionCommand(eachExtension);
-            checkbox.addActionListener(extensionCheckedListener);
-            extensionPanel.add(checkbox);
+            listModel.add( 0, String.format("*.%s", eachExtension) );
         }
-    }
-
-    public void setExtensionVisible(boolean visible)
-    {
-        extensionPanel.setVisible(visible);
     }
 
     public List<String> getCheckedExtensions()
     {
-        List<String> result = new ArrayList<String>();
-        
-        for (Component c : extensionPanel.getComponents())
-        {
-            JCheckBox cb = (JCheckBox) c;
-            if (cb.isSelected())
-            {
-                result.add(cb.getActionCommand());
-            }
-        }
-        
+        List<String> result = extensionList.getSelectedValuesList();       
         return result;
     }
 
@@ -370,4 +361,18 @@ public class MageekFrame extends javax.swing.JFrame
         
         fileTextArea.setText(sb.toString());
     };
+
+    void setSelectedExtensions(String[] _extensions)
+    {      
+        
+        for (String eachExtension : _extensions)
+        {
+            final int index = listModel.lastIndexOf(eachExtension);
+            if ( index != -1 )
+            {
+                extensionList.setSelectedIndex(index);
+            }            
+        }
+    }
+    
 };
