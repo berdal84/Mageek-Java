@@ -1,4 +1,4 @@
-[![Maven Package](https://github.com/berdal84/Mageek-Java/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/berdal84/Mageek-Java/actions/workflows/maven-publish.yml)
+[![Build](https://github.com/berdal84/Mageek-Java/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/berdal84/Mageek-Java/actions/workflows/maven-publish.yml)
 
 ## Mageek is an ImageJ Plugin
 ### Description
