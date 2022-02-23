@@ -374,7 +374,7 @@ public class MageekFrame extends javax.swing.JFrame
             final int index = listModel.lastIndexOf(eachExtension);
             if ( index != -1 )
             {
-                extensionList.setSelectedIndex(index);
+                extensionList.addSelectionInterval(index, index);
             }            
         }
     }

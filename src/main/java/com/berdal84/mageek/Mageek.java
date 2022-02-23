@@ -40,11 +40,15 @@ import javax.swing.tree.TreePath;
  * Mageek2 is the Java version of Mageek.ijm macro
  *
  * This plugin allows to process files by selecting a source directory. The
- * process will: - scan recursively the folder - display a scan result to let
- * the user to choose which file extension to process, and which colors to use,
- * - importing each file's series, - splitting each series's channel, - applying
- * a Z projection (to combine all slices), - colorize each channel, - save
- * result to a "ANALYZED" folder.
+ * process will:
+ * - scan recursively the folder
+ * - display a scan result to let the user to choose which file extension to
+ *   process, and which colors to use,
+ * - importing each file's series,
+ * - splitting each series's channel,
+ * - applying a Z projection (to combine all slices),
+ * - colorize each channel,
+ * - save result to a "ANALYZED" folder.
  */
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
 public class Mageek<T extends RealType<T>> implements Command
