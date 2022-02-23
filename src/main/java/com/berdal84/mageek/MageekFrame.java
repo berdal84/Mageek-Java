@@ -42,6 +42,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 import net.imagej.ops.OpService;
 import org.scijava.Context;
@@ -181,6 +182,13 @@ public class MageekFrame extends javax.swing.JFrame
 
         extensionList.setModel(listModel);
         extensionList.setAlignmentX(0.0F);
+        extensionList.addListSelectionListener(new javax.swing.event.ListSelectionListener()
+        {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt)
+            {
+                extensionListValueChanged(evt);
+            }
+        });
         jScrollPane4.setViewportView(extensionList);
 
         javax.swing.GroupLayout extensionsPanelLayout = new javax.swing.GroupLayout(extensionsPanel);
@@ -253,6 +261,11 @@ public class MageekFrame extends javax.swing.JFrame
         // TODO add your handling code here:
     }//GEN-LAST:event_batchCheckBoxActionPerformed
 
+    private void extensionListValueChanged(javax.swing.event.ListSelectionEvent evt)//GEN-FIRST:event_extensionListValueChanged
+    {//GEN-HEADEREND:event_extensionListValueChanged
+ 
+    }//GEN-LAST:event_extensionListValueChanged
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox batchCheckBox;
@@ -297,16 +310,14 @@ public class MageekFrame extends javax.swing.JFrame
     @Parameter
     private UIService ui;
 
-    private ActionListener extensionCheckedListener;
-
     private DefaultListModel listModel = new DefaultListModel();
     
-    public void addExtensionCheckedListener(ActionListener listener)
-    {
-        extensionCheckedListener = listener;
+    public void addFileExtSelectionListener(ListSelectionListener listener)
+    { 
+        extensionList.addListSelectionListener(listener);
     }
 
-    public void addBrowseListener(ActionListener listener)
+    public void addBrowseBtnListener(ActionListener listener)
     {
         browseBtn.addActionListener(listener);
     }
@@ -331,17 +342,17 @@ public class MageekFrame extends javax.swing.JFrame
         sourceDirectoryTextEdit.setText(path);
     }
 
-    public void setExtensions(ArrayList<String> extensions)
+    public void setFileExtensionList(ArrayList<String> extensions)
     {
         extensionList.removeAll();
         
         for (String eachExtension : extensions)
         {
-            listModel.add( 0, String.format("*.%s", eachExtension) );
+            listModel.add( 0, eachExtension );
         }
     }
 
-    public List<String> getCheckedExtensions()
+    public List<String> getSelectedFileExtensions()
     {
         List<String> result = extensionList.getSelectedValuesList();       
         return result;
@@ -366,7 +377,7 @@ public class MageekFrame extends javax.swing.JFrame
         fileTextArea.setText(sb.toString());
     };
 
-    void setSelectedExtensions(String[] _extensions)
+    void setSelectedFileExtensions(String[] _extensions)
     {      
         
         for (String eachExtension : _extensions)

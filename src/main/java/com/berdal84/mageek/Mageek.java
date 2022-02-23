@@ -23,32 +23,26 @@ import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JTree;
 
 import javax.swing.WindowConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
  *
  * This plugin allows to process files by selecting a source directory. The
- * process will:
- * - scan recursively the folder
- * - display a scan result to let the user to choose which file extension to
- *   process, and which colors to use,
- * - importing each file's series,
- * - splitting each series's channel,
- * - applying a Z projection (to combine all slices),
- * - colorize each channel,
- * - save result to a "ANALYZED" folder.
+ * process will: - scan recursively the folder - display a scan result to let
+ * the user to choose which file extension to process, and which colors to use,
+ * - importing each file's series, - splitting each series's channel, - applying
+ * a Z projection (to combine all slices), - colorize each channel, - save
+ * result to a "ANALYZED" folder.
  */
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
 public class Mageek<T extends RealType<T>> implements Command
@@ -82,25 +76,32 @@ public class Mageek<T extends RealType<T>> implements Command
     private final String SCRIPT_VERSION = "1.0.0";
 
     /* Scanned extensions */
-    private ArrayList<String> scannedFileExtensions = new ArrayList<String>();
-    
+    private ArrayList<String> scannedFileExtensions = new ArrayList<>();
+
     /* Scanned files */
-    private ArrayList<File> scannedFiles = new ArrayList<File>();
+    private ArrayList<File> scannedFiles = new ArrayList<>();
+
+    /* Filtered files */
+    private ArrayList<File> filteredFiles = new ArrayList<>();
 
     /* Ignored files */
-    private ArrayList<File> ignoredFiles = new ArrayList<File>();
+    private final ArrayList<File> ignoredFiles = new ArrayList<>();
 
     /* Processed files */
-    private ArrayList<File> processedFiles = new ArrayList<File>();
+    private final ArrayList<File> processedFiles = new ArrayList<>();
 
     /* The main UI */
     private MageekFrame dialog;
-    
-    private String[] SELECTED_EXTENSIONS_DEFAULT = {"*.czi", "*.lif", "*.nd2"};
+
+    private final String[] SELECTED_EXTENSIONS_DEFAULT =
+    {
+        "*.czi", "*.lif", "*.nd2"
+    };
 
     @Override
     public void run()
     {
+
         log.log(LogLevel.INFO, String.format("Running %s ...", SCRIPT_TITLE));
 
         dialog = new MageekFrame(ui.context());
@@ -108,52 +109,45 @@ public class Mageek<T extends RealType<T>> implements Command
         dialog.setStatus(String.format("Welcome to %s v%s", SCRIPT_TITLE, SCRIPT_VERSION));
         dialog.setSourceDirectory("Select a source directory ...");
 
-        dialog.addBrowseListener(new ActionListener()
+        dialog.addBrowseBtnListener((ActionEvent evt) ->
         {
-            public void actionPerformed(ActionEvent arg0)
+            dialog.setStatus("Browsing folder ...");
+
+            askSourceDirectoryToUser();
+
+            if (sourceFolder != null)
             {
-                dialog.setStatus("Browsing folder ...");
+                dialog.setStatus(
+                        String.format(
+                                "Source folder %s picked. Click on process now.",
+                                sourceFolder.toString()
+                        )
+                );
+                dialog.setProgress(10);
 
-                askSourceDirectoryToUser();
+                dialog.setSourceDirectory(sourceFolder.toString());
 
-                if (sourceFolder != null)
-                {
-                    dialog.setStatus(
-                            String.format(
-                                    "Source folder %s picked. Click on process now.",
-                                    sourceFolder.toString()
-                            )
-                    );
-                    dialog.setProgress(10);
-                    
-                    dialog.setSourceDirectory(sourceFolder.toString());
-                    
-                    scannedFiles = FileHelper.getFiles(sourceFolder, true);
-                    dialog.setFileList(scannedFiles);
-                    
-                    scannedFileExtensions = FileHelper.getFileExtensions( scannedFiles );
-                    dialog.setExtensions(scannedFileExtensions);
-                    dialog.setSelectedExtensions(SELECTED_EXTENSIONS_DEFAULT);
-                }
-                else
-                {
-                    dialog.setStatus("Browsing aborted.");
-                    dialog.setProgress(0);
-                    dialog.clearFileList();
-                }
+                scannedFiles = FileHelper.getFiles(sourceFolder, true);
+                dialog.setFileList(scannedFiles);
+                scannedFileExtensions = FileHelper.getFileExtensions(scannedFiles);
+                dialog.setFileExtensionList(scannedFileExtensions);
+                dialog.setSelectedFileExtensions(SELECTED_EXTENSIONS_DEFAULT);
+            }
+            else
+            {
+                dialog.setStatus("Browsing aborted.");
+                dialog.setProgress(0);
+                dialog.clearFileList();
             }
         });
 
-        dialog.addLaunchProcessListener(new ActionListener()
+        dialog.addLaunchProcessListener((ActionEvent evt) ->
         {
-            public void actionPerformed(ActionEvent evt)
-            {
-                dialog.setStatus("Processing ...");
-                process();
-                dialog.setStatus("Processing DONE");
-                dialog.setProgress(100);
-                showStats();
-            }
+            dialog.setStatus("Processing ...");
+            process();
+            dialog.setStatus("Processing DONE");
+            dialog.setProgress(100);
+            displayStatisticsInStatusBar();
         });
 
         dialog.addWindowListener(new WindowListener()
@@ -196,44 +190,56 @@ public class Mageek<T extends RealType<T>> implements Command
 
         });
 
-        dialog.addExtensionCheckedListener(new ActionListener()
+        dialog.addFileExtSelectionListener((ListSelectionEvent e) ->
         {
-            public void actionPerformed(ActionEvent evt)
-            {
-                dialog.setStatus(
-                    String.format(
-                        "Extension %s checked/unchecked. Updating file list ...",
-                        evt.getActionCommand()
-                    )
-                );
-                filterFiles(dialog.getCheckedExtensions());
-            }
+            filterFiles( dialog.getSelectedFileExtensions() );
+            dialog.setFileList(filteredFiles);
         });
 
         dialog.setVisible(true);
         dialog.setAlwaysOnTop(false);
     }
 
-    protected void filterFiles(List<String> checkedExtensions)
+    /**
+     * Filter scanned files with the checked extensions.
+     *
+     * @param selectedExtensions
+     * @return
+     */
+    protected ArrayList<File> filterFiles(List<String> selectedExtensions)
     {
+        filteredFiles = new ArrayList<>(scannedFiles);
+        filteredFiles.removeIf((_eachFile) ->
+        {
+            return !selectedExtensions.contains( FileHelper.getFormattedExtension(_eachFile) );
+        });
+
         dialog.setStatus(
-            String.format(
-                "Filtering files with the following extensions: %s",
-                checkedExtensions.toString()
-            )
+                String.format(
+                        "Filtering files with the following extensions: %s",
+                        selectedExtensions.toString()
+                )
         );
+
+        return filteredFiles;
     }
 
+    /**
+     * Launch the process over filtered files.
+     *
+     * Each file will be processed one by one, result will be saved to
+     * destinationDirectory.
+     */
     private void process()
     {
         if (sourceFolder != null)
         {
             log.log(
-                LogLevel.INFO,
-                String.format(
-                        "Processing folder %s ...",
-                        sourceFolder.getAbsolutePath()
-                )
+                    LogLevel.INFO,
+                    String.format(
+                            "Processing folder %s ...",
+                            sourceFolder.getAbsolutePath()
+                    )
             );
             log.log(LogLevel.INFO, "Processing DONE");
 
@@ -246,11 +252,17 @@ public class Mageek<T extends RealType<T>> implements Command
         }
     }
 
+    /**
+     * Open a file dialog to pick a source directory.
+     *
+     * I case the folder has already been analyzed (presence of ANALYSED
+     * sub-folder) a prompt will ask user to overwrite/do not overwrite/cancel.
+     */
     private void askSourceDirectoryToUser()
     {
         // ask user to pick a source folder
         File pickedFolder = ui.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
-        
+
         if (pickedFolder == null)
         {
             sourceFolder = null;
@@ -277,12 +289,12 @@ public class Mageek<T extends RealType<T>> implements Command
                         destinationFolder.toString()
                 );
 
-                DialogPrompt.Result result =
-                    ui.showDialog(
-                        message,
-                        MessageType.QUESTION_MESSAGE,
-                        OptionType.YES_NO_CANCEL_OPTION
-                    );
+                DialogPrompt.Result result
+                        = ui.showDialog(
+                                message,
+                                MessageType.QUESTION_MESSAGE,
+                                OptionType.YES_NO_CANCEL_OPTION
+                        );
 
                 switch (result)
                 {
@@ -307,10 +319,9 @@ public class Mageek<T extends RealType<T>> implements Command
     }
 
     /**
-     * Show the statistics after images have been processed - scanned - ignored
-     * - processed With a good bye message.
+     * Update the statistics in status bar
      */
-    void showStats()
+    void displayStatisticsInStatusBar()
     {
         String innerMessage;
 
@@ -342,6 +353,11 @@ public class Mageek<T extends RealType<T>> implements Command
         dialog.setStatus(message);
     }
 
+    /**
+     * Stop Mageek.
+     *
+     * Main dialog will be closed.
+     */
     private void stop()
     {
         dialog.setVisible(false);

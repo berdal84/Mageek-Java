@@ -35,6 +35,16 @@ import org.apache.commons.io.FilenameUtils;
 public class FileHelper
 {
 
+    public static String getFormattedExtension(File _file)
+    {
+        return formatExtension( FilenameUtils.getExtension(_file.getName()) );
+    }
+    
+    public static String formatExtension(String _extension)
+    {
+        return String.format("*.%s", _extension);
+    }
+    
     /**
      * Get file extensions from a file list.
      * @param _files
@@ -46,10 +56,10 @@ public class FileHelper
 
         _files.forEach((File _eachFile)->
         {
-            String extension = FilenameUtils.getExtension(_eachFile.getName());
+            String extension = getFormattedExtension(_eachFile);
             if ( extension != null && !result.contains(extension) )
             {                
-                result.add(extension);
+                result.add( extension );
             }
         });
 
