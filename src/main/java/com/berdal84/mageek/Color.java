@@ -23,42 +23,36 @@
  */
 package com.berdal84.mageek;
 
-import java.lang.reflect.Array;
-
 /**
  *
  * @author berenger
  */
-public class ColorPreset
+public final class Color
 {
-    private String name;
-    private Color[] colors;
+    /* Color string usable in colorize command */
+    private final String colorString;
     
-    ColorPreset(
-        String _name,
-        Color[] _colors
-    )
+    private Color(String _colorString)
     {
-        if (_colors.length != 4 )
-        {
-            throw new IllegalArgumentException("_colors.length must be 4.");
-        }
-        name   = _name;
-        colors = _colors.clone();
+        this.colorString = _colorString;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return colorString;
+    }
+    
+    public static Color   NULL    = new Color("Null");
+    public static Color   RED     = new Color("Red");
+    public static Color   GREEN   = new Color("Green");
+    public static Color   BLUE    = new Color("Blue"); 
+    public static Color   MAGENTA = new Color("Magenta");
+    public static Color[] ALL     =
+    {
+        Color.RED,
+        Color.GREEN,
+        Color.BLUE,
+        Color.MAGENTA
     };
-
-    final Color getColor(int _index)
-    {
-        return colors[_index];
-    }
-    
-    final String getColorString(int _index)
-    {
-        return colors[_index].toString();
-    }
-
-    final String getName()
-    {
-        return name;
-    }
 }

@@ -98,12 +98,9 @@ public class Mageek<T extends RealType<T>> implements Command
 
     private final String[] SELECTED_EXTENSIONS_DEFAULT =  // TODO: convert to enum
     {
-        "*.czi", "*.lif", "*.nd2"
-    };
-    
-    private final String[] AVAILABLE_COLORS =  // TODO: convert to enum
-    {
-        "Red", "Green", "Blue", "Magenta"
+        "*.czi",
+        "*.lif",
+        "*.nd2"
     };
     
     private final String Z_PROJECT_NONE = "None";
@@ -123,6 +120,27 @@ public class Mageek<T extends RealType<T>> implements Command
     private final String COLOR_PRESET_DEFAULT = "Confocal";
 
     private final Map<String, ColorPreset> colorPresets = new HashMap();
+    
+    public Mageek()
+    {
+        {
+            Color[] colors = { Color.BLUE , Color.RED, Color.GREEN, Color.MAGENTA};
+            ColorPreset preset = new ColorPreset("Confocal", colors );
+            colorPresets.put(preset.getName(), preset);
+        }
+
+        {
+            Color[] colors = { Color.BLUE, Color.GREEN, Color.RED, Color.MAGENTA};
+            ColorPreset preset = new ColorPreset("Legacy", colors );
+            colorPresets.put(preset.getName(), preset);
+        }
+        
+        {
+            Color[] colors = { Color.NULL , Color.NULL, Color.NULL, Color.NULL};
+            ColorPreset preset = new ColorPreset("Custom", colors );
+            colorPresets.put(preset.getName(), preset);
+        }
+    }
     
     @Override
     public void run()
@@ -227,23 +245,46 @@ public class Mageek<T extends RealType<T>> implements Command
         dialog.addSelectColorListener((ItemEvent e) ->
         {
             log.info("Color changed !");
+            String presetName = dialog.getSelectedPresetName();
+            if( colorPresets.containsKey(presetName))
+            {
+                ColorPreset preset = colorPresets.get(presetName);
+               
+                if (!preset.getColorString(0).equals( dialog.getSelectedColorAt(1)) ||
+                    !preset.getColorString(1).equals( dialog.getSelectedColorAt(2)) ||
+                    !preset.getColorString(2).equals( dialog.getSelectedColorAt(3))||
+                    !preset.getColorString(3).equals( dialog.getSelectedColorAt(4)))
+                {
+                    dialog.setColorPreset(colorPresets.get("Custom"), false);
+                }
+            }
         });
         
         dialog.addSelectColorPresetListener((ItemEvent e) ->
         {            
             String presetName = (String)e.getItem();
             log.info( String.format("ColorPreset changed to %s", presetName ));
-            dialog.setColorPreset( colorPresets.get(presetName));
+            
+            if ( !presetName.equals("Custom") )
+            {
+                dialog.setColorPreset( colorPresets.get(presetName), true);  
+            }
         });
         
         {
-            String[] colors = {"Magenta", "Red", "Green", "Blue"};
+            Color[] colors = { Color.NULL , Color.NULL, Color.NULL, Color.NULL};
+            ColorPreset preset = new ColorPreset("Custom", colors );
+            colorPresets.put(preset.getName(), preset);
+        }
+        
+        {
+            Color[] colors = { Color.BLUE , Color.RED, Color.GREEN, Color.MAGENTA};
             ColorPreset preset = new ColorPreset("Confocal", colors );
             colorPresets.put(preset.getName(), preset);
         }
 
         {
-            String[] colors = {"Blue", "Green", "Red", "Magenta"};
+            Color[] colors = { Color.BLUE, Color.GREEN, Color.RED, Color.MAGENTA};
             ColorPreset preset = new ColorPreset("Legacy", colors );
             colorPresets.put(preset.getName(), preset);
         }
@@ -252,15 +293,11 @@ public class Mageek<T extends RealType<T>> implements Command
         dialog.setStatus(String.format("Welcome to %s v%s", SCRIPT_TITLE, SCRIPT_VERSION));
         dialog.setSourceDirectory("Select a source directory ...");
 
-        dialog.setAvailableColors(AVAILABLE_COLORS);
-        dialog.setColor(AVAILABLE_COLORS[0], 0);
-        dialog.setColor(AVAILABLE_COLORS[0], 1);
-        dialog.setColor(AVAILABLE_COLORS[0], 2);
-        dialog.setColor(AVAILABLE_COLORS[0], 3);        
+        dialog.setAvailableColors(Color.ALL);      
 
         ArrayList presets = new ArrayList(colorPresets.values());
         dialog.setAvailableColorPresets(presets);
-        dialog.setColorPreset(colorPresets.get(COLOR_PRESET_DEFAULT));
+        dialog.setColorPreset(colorPresets.get(COLOR_PRESET_DEFAULT), true);
         
         dialog.setAvailableZProjection(AVAILABLE_ZPROJECTION);
         dialog.setZProjection(Z_PROJECT_NONE);

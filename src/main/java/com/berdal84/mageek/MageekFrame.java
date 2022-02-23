@@ -448,6 +448,14 @@ public class MageekFrame extends javax.swing.JFrame
             eachCombo.addItemListener(listener);  
         }        
     }
+    
+    public void removeSelectColorListener(ItemListener listener)
+    {
+        for( JComboBox eachCombo : colorComboBoxes )
+        {
+            eachCombo.removeItemListener(listener);  
+        }        
+    }
            
     public void addBrowseBtnListener(ActionListener listener)
     {
@@ -522,25 +530,27 @@ public class MageekFrame extends javax.swing.JFrame
         }
     }
     
-    void setAvailableColors(String[] _colors)
+    void setAvailableColors(Color[] _colors)
     {
         for( JComboBox eachCB : colorComboBoxes )
         {
             eachCB.removeAllItems();
         }
         
-        for( String eachColor : _colors)
+        for( Color eachColor : _colors)
         {
             for( JComboBox eachCB : colorComboBoxes )
             {
-                eachCB.addItem(eachColor);
+                eachCB.addItem(eachColor.toString());
             }
         }
     }
     
-    void setColor(String _color, int _channel)
+    void setColor(Color _color, int _channel)
     {
-        colorComboBoxes.get(_channel).setSelectedItem(_color);
+        colorComboBoxes
+                .get(_channel)
+                .setSelectedItem(_color.toString());
     }
         
     void setAvailableZProjection(String[] _projections)
@@ -548,23 +558,37 @@ public class MageekFrame extends javax.swing.JFrame
         zProjectionComboBox.removeAllItems();
         for( String eachColor : _projections)
         {
-            zProjectionComboBox.addItem(eachColor);
+            zProjectionComboBox.addItem(eachColor.toString());
         }
     }
     
     void setZProjection(String _projection)
     {
-        zProjectionComboBox.setSelectedItem(ABORT);
+        zProjectionComboBox.setSelectedItem(_projection);
     }
 
-    void setColorPreset(ColorPreset _preset)
+    void setColorPreset(ColorPreset _preset, boolean _setColors)
     {
-        int i = 0;
-        for( JComboBox eachCB : colorComboBoxes)
+        colorPreset.setSelectedItem(_preset.getName());
+        if ( _setColors )
         {
-            eachCB.setSelectedItem(_preset.getColor(i++));
+            int i = 0;
+            for( JComboBox eachCB : colorComboBoxes)
+            {
+                ItemListener[] listeners = eachCB.getItemListeners();
+                for(ItemListener listener : listeners)
+                {
+                    removeSelectColorListener(listener);
+                }
+                
+                eachCB.setSelectedItem(_preset.getColor(i++).toString());
+                
+                for(ItemListener listener : listeners)
+                {
+                    addSelectColorListener(listener);
+                }
+            } 
         }
-        
     }
 
     void setAvailableColorPresets(ArrayList<ColorPreset> _presets)
@@ -574,6 +598,16 @@ public class MageekFrame extends javax.swing.JFrame
         {
             colorPreset.addItem(eachPreset.getName());
         }
+    }
+
+    String getSelectedPresetName()
+    {
+        return (String) colorPreset.getSelectedItem();
+    }
+
+    String getSelectedColorAt(int i)
+    {
+        return (String) colorComboBoxes.get(i).getSelectedItem();
     }
     
 };
