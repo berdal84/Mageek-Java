@@ -320,11 +320,9 @@ public class Mageek<T extends RealType<T>> implements Command
         else
         {
             innerMessage = String.format(
-                    "%s processed the folder %s.\nOutput file(s) were generated into %s.\n\nResume:\n - scanned: %d file(s)\n - ignored: %d file(s)\n - processed: %d file(s)",
-                    SCRIPT_TITLE,
-                    sourceFolder.toString(),
-                    destinationFolder.toString(),
+                    "Process done, %d file(s) were generated into %s (scanned %d file(s), ignored: %d)",
                     scannedFiles.size(),
+                    destinationFolder.toString(),
                     ignoredFiles.size(),
                     processedFiles.size()
             );
@@ -333,11 +331,11 @@ public class Mageek<T extends RealType<T>> implements Command
         }
 
         String message = String.format(
-                "%s\n\n\t\tHasta la vista, baby. ^^",
+                "%s --- Hasta la vista, baby. ^^",
                 innerMessage
         );
 
-        dialog.setStats(message);
+        dialog.setStatus(message);
     }
 
     private void stop()

@@ -197,7 +197,7 @@ public class MageekFrame extends javax.swing.JFrame
             .addGroup(extensionsPanelLayout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE))
         );
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
@@ -242,7 +242,8 @@ public class MageekFrame extends javax.swing.JFrame
                 .addGap(6, 6, 6)
                 .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(statusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
@@ -344,12 +345,6 @@ public class MageekFrame extends javax.swing.JFrame
     {
         List<String> result = extensionList.getSelectedValuesList();       
         return result;
-    }
-
-    public void setStats(String message)
-    {
-        statsTextArea.removeAll();
-        statsTextArea.setText(message);
     }
 
     void clearFileList()
