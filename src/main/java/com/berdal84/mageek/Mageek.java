@@ -13,6 +13,7 @@ import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.run.RunService;
 import org.scijava.ui.DialogPrompt.MessageType;
 import org.scijava.ui.DialogPrompt.OptionType;
 import org.scijava.ui.DialogPrompt;
@@ -21,21 +22,24 @@ import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
-
+import io.scif.services.DatasetIOService;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import org.apache.commons.io.FilenameUtils;
+import net.imagej.Dataset;
+import net.imagej.DefaultDataset;
 
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
@@ -48,9 +52,11 @@ import org.apache.commons.io.FilenameUtils;
  * result to a "ANALYZED" folder.
  */
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
-public class Mageek<T extends RealType<T>> implements Command
+public class Mageek<T extends RealType<T>>  implements Command
 {
-
+    @Parameter
+    private RunService run;
+    
     @Parameter
     private UIService ui;
 
@@ -60,6 +66,9 @@ public class Mageek<T extends RealType<T>> implements Command
     @Parameter
     private LogService log;
 
+    @Parameter
+    private DatasetIOService dataSetService;
+        
     /* The current source folder */
     private File sourceFolder;
 
@@ -79,19 +88,19 @@ public class Mageek<T extends RealType<T>> implements Command
     private final String SCRIPT_VERSION = "1.0.0";
 
     /* Scanned extensions */
-    private ArrayList<String> scannedFileExtensions = new ArrayList<>();
+    private ArrayList<String> scannedFileExtensions = new ArrayList<String>();
 
     /* Scanned files */
-    private ArrayList<File> scannedFiles = new ArrayList<>();
+    private ArrayList<File> scannedFiles = new ArrayList<File>();
 
     /* Filtered files */
-    private ArrayList<File> filteredFiles = new ArrayList<>();
+    private ArrayList<File> filteredFiles = new ArrayList<File>();
 
     /* Ignored files */
-    private final ArrayList<File> ignoredFiles = new ArrayList<>();
+    private final ArrayList<File> ignoredFiles = new ArrayList<File>();
 
     /* Processed files */
-    private final ArrayList<File> processedFiles = new ArrayList<>();
+    private final ArrayList<File> processedFiles = new ArrayList<File>();
 
     /* The main UI */
     private MageekFrame dialog;
@@ -147,9 +156,9 @@ public class Mageek<T extends RealType<T>> implements Command
     {
         log.log(LogLevel.INFO, String.format("Running %s ...", SCRIPT_TITLE));
 
-        dialog = new MageekFrame(ui.context());        
+        dialog = new MageekFrame(ui.context());
         
-        dialog.addBrowseBtnListener((ActionEvent evt) ->
+        dialog.addBrowseBtnListener( (ActionEvent evt)->
         {
             dialog.setStatus("Browsing folder ...");
 
@@ -184,7 +193,7 @@ public class Mageek<T extends RealType<T>> implements Command
         dialog.addLaunchProcessListener((ActionEvent evt) ->
         {
             dialog.setStatus("Processing ...");
-            process();
+            processFiles();
             dialog.setStatus("Processing DONE");
             dialog.setProgress(100);
             displayStatisticsInStatusBar();
@@ -335,7 +344,7 @@ public class Mageek<T extends RealType<T>> implements Command
      * Each file will be processed one by one, result will be saved to
      * destinationDirectory.
      */
-    private void process()
+    private void processFiles()
     {
         if (sourceFolder != null)
         {
@@ -346,14 +355,46 @@ public class Mageek<T extends RealType<T>> implements Command
                             sourceFolder.getAbsolutePath()
                     )
             );
-            log.log(LogLevel.INFO, "Processing DONE");
+            
+            for ( File eachFile : filteredFiles)
+            {
+                Dataset eachDataSet;
+                
+                if ( !dataSetService.canOpen(eachFile.getAbsolutePath()))
+                {
+                    log.warn( String.format("Unable to open file %s, ImageJ cannot open it.", eachFile.toString() ) );
+                    ignoredFiles.add(eachFile);
+                }
+                else
+                {
+                    try
+                    {
+                        eachDataSet = dataSetService.open( eachFile.getAbsolutePath() );
+                        long size = eachDataSet.size();
+                        log.info(String.format("Loaded file %s", eachFile.toString()));
+                    }
+                    catch (IOException ex)
+                    {
+                        Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                        eachDataSet = null;
+                    }
 
-            // TODO: display scan result (extension list) and color presets.
-            // TODO: process files
+    //                        selectImage(serie_num);
+    //                        getDimensions(width, height, channels, slices, frames);
+    //                        outputFileName = destinationDirectory + File.separator + File.nameWithoutExtension + "_serie_" + serie_num;
+    //                        colorizeFile( outputFile, colorsUserChoice, channels, slices, frames );
+    //                        selectImage(serie_num);
+    //                        close();
+    //                }
+                    processedFiles.add(eachFile);
+                    log.info( String.format("Processing %s DONE", eachFile.toString()));	
+                }
+            }
+            log.info("Processing DONE");
         }
         else
         {
-            log.log(LogLevel.ERROR, "No source folder set !");
+            ui.showDialog("Please set a source folder first.");
         }
     }
 
@@ -468,7 +509,87 @@ public class Mageek<T extends RealType<T>> implements Command
         dialog.setVisible(false);
         dialog.dispose();
     }
+    
+    private void colorizeFile(File _output, Color[] _colorForChannel, int channels, int slices, int frames )
+    {	
+//	log.info("Colorize... ", _outputFileName , "[ ", channels, " channel(s), ", slices, " slice(s), ", frames, " frame(s) ]");	
+//	existingFileCount = nImages();
+//	channelToProcessCount = channels;	
+//	// in some cases we could have more channels than colors, so we skip the channels without color
+//	if ( channelToProcessCount  > _colorForChannel.length ) {
+//		channelToProcessCount = _colorForChannel.length;
+//	}
+//
+//	// Stack.setDisplayMode("color");
+//
+//	// Colorize each channels using specified color (_colorForChannel is an Array of strings)
+//
+//	for( i=0; i < channelToProcessCount; i++)
+//        {
+//            if( channelToProcessCount > 1 ) { 
+//                    Stack.setChannel(i+1);
+//            }
+//            colorScriptName = _colorForChannel[i];
+//            print("Colorizing channel ", i+1, " as ", colorScriptName, "...");
+//            run(colorScriptName);
+//	}
+//
+//	if( frames > 1 || slices > 1)
+//        { 
+//            if (zProjUserChoice != Z_PROJECT_NONE ){
+//                    run("Z Project...", "projection=["+ zProjUserChoice +"]");	
+//            }
+//            selectImage(existingFileCount);
+//            close();
+//	}
+//	
+//	// Split channels if needed
+//	if ( channelToProcessCount > 1 )
+//        {
+//            run("Split Channels");
+//	}	
+//	
+//	// Rename the channel(s) image(s)
+//	for( i=0; i < channelToProcessCount; i++)
+//        {
+//            selectImage(existingFileCount+i);
+//            rename(_colorForChannel[i]);
+//	}
+//
+//	/** Merge channel is disabled for now...
+//	options = "";
+//	for( i=0; i < channelToProcessCount; i++) {
+//		options = options + "c"+(i+1)+"=" + _colorForChannel[i] + " ";
+//	}
+//	run("Merge Channels...", options + "keep");
+//	*/
+//	
+//	// Save each image
+//	for( i=0; i < channelToProcessCount; i++)
+//        {
+//            selectWindow(_colorForChannel[i]);
+//            run("RGB Color");
+//            saveAs("Tiff", _outputFileName + "_color_" + _colorForChannel[i] + ".tif");
+//	}
+//
+//	// Create a Montage with colored channels (only if we have more than one channel)
+//	if ( channelToProcessCount > 1 )
+//        {
+//            run("Images to Stack", "name=name title=[] use keep");
+//            run("Make Montage...", "columns=" + channelToProcessCount + " rows=1 scale=0.5 first=1 last="+ channelToProcessCount +" increment=1 border=1 font=12");
+//            saveAs("Tiff", _outputFileName + "_Montage.tif");
+//	}
+//
+//	// Close opened images
+//	while (nImages() > existingFileCount )
+//        { 		
+//            selectImage(nImages); 
+//            close(); 
+//	}
 
+    }
+
+    
     /**
      * This main function serves for development purposes. It allows you to run
      * the plugin immediately out of your integrated development environment
@@ -484,5 +605,4 @@ public class Mageek<T extends RealType<T>> implements Command
         ij.ui().showUI();
         ij.command().run(Mageek.class, true);
     }
-
 }
