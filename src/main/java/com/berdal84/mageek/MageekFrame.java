@@ -23,27 +23,14 @@
  */
 package com.berdal84.mageek;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JComboBox;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.tree.TreePath;
 import net.imagej.ops.OpService;
 import org.scijava.Context;
 import org.scijava.app.StatusService;
@@ -62,11 +49,17 @@ public class MageekFrame extends javax.swing.JFrame
 
     /**
      * Creates new form MageekFrame
+     * @param ctx
      */
     public MageekFrame(final Context ctx)
     {
         ctx.inject(this);
         initComponents();
+        colorComboBoxes = new ArrayList<>();
+        colorComboBoxes.add(color1ComboBox);
+        colorComboBoxes.add(color2ComboBox);
+        colorComboBoxes.add(color3ComboBox);
+        colorComboBoxes.add(color4ComboBox);
     }
 
     /**
@@ -79,12 +72,12 @@ public class MageekFrame extends javax.swing.JFrame
     private void initComponents()
     {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         processPanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         cancelBtn = new javax.swing.JButton();
         processBtn = new javax.swing.JButton();
-        batchCheckBox = new javax.swing.JCheckBox();
         progressBar = new javax.swing.JProgressBar();
         statusLabel = new javax.swing.JLabel();
         srcDirPanel = new javax.swing.JPanel();
@@ -101,6 +94,21 @@ public class MageekFrame extends javax.swing.JFrame
         jScrollPane4 = new javax.swing.JScrollPane();
         extensionList = new javax.swing.JList<>();
         jLabel1 = new javax.swing.JLabel();
+        colorPanel = new javax.swing.JPanel();
+        zProjectionComboBox = new javax.swing.JComboBox<>();
+        zProjectionLabel = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        colorPreset = new javax.swing.JComboBox<>();
+        color1ComboBox = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        color2ComboBox = new javax.swing.JComboBox<>();
+        color3ComboBox = new javax.swing.JComboBox<>();
+        jLabel9 = new javax.swing.JLabel();
+        color4ComboBox = new javax.swing.JComboBox<>();
+        batchCheckBox = new javax.swing.JCheckBox();
+        jLabel10 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -116,18 +124,6 @@ public class MageekFrame extends javax.swing.JFrame
         processBtn.setMinimumSize(new java.awt.Dimension(100, 29));
         processBtn.setPreferredSize(new java.awt.Dimension(200, 29));
         jPanel2.add(processBtn, java.awt.BorderLayout.CENTER);
-
-        batchCheckBox.setSelected(true);
-        batchCheckBox.setText("Batch");
-        batchCheckBox.setToolTipText("Enable by default, will process the images in background (faster).");
-        batchCheckBox.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                batchCheckBoxActionPerformed(evt);
-            }
-        });
-        jPanel2.add(batchCheckBox, java.awt.BorderLayout.LINE_END);
 
         processPanel.add(jPanel2);
 
@@ -165,10 +161,8 @@ public class MageekFrame extends javax.swing.JFrame
         fileListPanel.setLayout(fileListPanelLayout);
         fileListPanelLayout.setHorizontalGroup(
             fileListPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel5)
             .addComponent(jScrollPane2)
-            .addGroup(fileListPanelLayout.createSequentialGroup()
-                .addComponent(jLabel5)
-                .addGap(0, 0, Short.MAX_VALUE))
         );
         fileListPanelLayout.setVerticalGroup(
             fileListPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -205,12 +199,106 @@ public class MageekFrame extends javax.swing.JFrame
             .addGroup(extensionsPanelLayout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))
         );
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Mageek");
+
+        colorPanel.setAutoscrolls(true);
+
+        zProjectionLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        zProjectionLabel.setText("Z projection");
+
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Color Preset");
+
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel6.setText("Channel 1");
+
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel7.setText("Channel 3");
+
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel8.setText("Channel 2");
+
+        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel9.setText("Channel 4");
+
+        batchCheckBox.setSelected(true);
+        batchCheckBox.setText("Batch Mode");
+        batchCheckBox.setToolTipText("Enable by default, will process the images in background (faster).");
+        batchCheckBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                batchCheckBoxActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout colorPanelLayout = new javax.swing.GroupLayout(colorPanel);
+        colorPanel.setLayout(colorPanelLayout);
+        colorPanelLayout.setHorizontalGroup(
+            colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(colorPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(zProjectionLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(colorPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel7)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(colorPreset, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(zProjectionComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(colorPanelLayout.createSequentialGroup()
+                        .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(color1ComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, 165, Short.MAX_VALUE)
+                            .addComponent(color4ComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(color2ComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(color3ComboBox, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, colorPanelLayout.createSequentialGroup()
+                        .addComponent(batchCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())))
+        );
+        colorPanelLayout.setVerticalGroup(
+            colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(colorPanelLayout.createSequentialGroup()
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(zProjectionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(zProjectionLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(colorPreset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(color1ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(color2ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(color3ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(color4ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(batchCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        jLabel10.setText("Options:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -225,14 +313,17 @@ public class MageekFrame extends javax.swing.JFrame
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(srcDirPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(srcDirPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)
                             .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(extensionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(fileListPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(processPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 693, Short.MAX_VALUE))))))
+                                .addComponent(fileListPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(colorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel10)
+                                    .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -245,13 +336,19 @@ public class MageekFrame extends javax.swing.JFrame
                 .addComponent(srcDirPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(extensionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(fileListPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(6, 6, 6)
-                .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(extensionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(fileListPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(7, 7, 7))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(colorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                .addComponent(statusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -271,6 +368,12 @@ public class MageekFrame extends javax.swing.JFrame
     private javax.swing.JCheckBox batchCheckBox;
     private javax.swing.JButton browseBtn;
     private javax.swing.JButton cancelBtn;
+    private javax.swing.JComboBox<String> color1ComboBox;
+    private javax.swing.JComboBox<String> color2ComboBox;
+    private javax.swing.JComboBox<String> color3ComboBox;
+    private javax.swing.JComboBox<String> color4ComboBox;
+    private javax.swing.JPanel colorPanel;
+    private javax.swing.JComboBox<String> colorPreset;
     private javax.swing.JList<String> extensionList;
     private javax.swing.JPanel extensionsPanel;
     private javax.swing.JPanel fileListPanel;
@@ -278,20 +381,31 @@ public class MageekFrame extends javax.swing.JFrame
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JButton processBtn;
     private javax.swing.JPanel processPanel;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JTextField sourceDirectoryTextEdit;
     private javax.swing.JPanel srcDirPanel;
     private javax.swing.JLabel statusLabel;
+    private javax.swing.JComboBox<String> zProjectionComboBox;
+    private javax.swing.JLabel zProjectionLabel;
     // End of variables declaration//GEN-END:variables
 
+    private final ArrayList<JComboBox> colorComboBoxes;
+    
     @Parameter
     private OpService ops;
 
@@ -317,6 +431,24 @@ public class MageekFrame extends javax.swing.JFrame
         extensionList.addListSelectionListener(listener);
     }
 
+    public void addSelectColorPresetListener(ItemListener listener)
+    {
+        colorPreset.addItemListener(listener);
+    }
+    
+    public void addSelectZProjectionListener(ItemListener listener)
+    {
+        zProjectionComboBox.addItemListener(listener);
+    }
+    
+    public void addSelectColorListener(ItemListener listener)
+    {
+        for( JComboBox eachCombo : colorComboBoxes )
+        {
+            eachCombo.addItemListener(listener);  
+        }        
+    }
+           
     public void addBrowseBtnListener(ActionListener listener)
     {
         browseBtn.addActionListener(listener);
@@ -387,6 +519,60 @@ public class MageekFrame extends javax.swing.JFrame
             {
                 extensionList.addSelectionInterval(index, index);
             }            
+        }
+    }
+    
+    void setAvailableColors(String[] _colors)
+    {
+        for( JComboBox eachCB : colorComboBoxes )
+        {
+            eachCB.removeAllItems();
+        }
+        
+        for( String eachColor : _colors)
+        {
+            for( JComboBox eachCB : colorComboBoxes )
+            {
+                eachCB.addItem(eachColor);
+            }
+        }
+    }
+    
+    void setColor(String _color, int _channel)
+    {
+        colorComboBoxes.get(_channel).setSelectedItem(_color);
+    }
+        
+    void setAvailableZProjection(String[] _projections)
+    {
+        zProjectionComboBox.removeAllItems();
+        for( String eachColor : _projections)
+        {
+            zProjectionComboBox.addItem(eachColor);
+        }
+    }
+    
+    void setZProjection(String _projection)
+    {
+        zProjectionComboBox.setSelectedItem(ABORT);
+    }
+
+    void setColorPreset(ColorPreset _preset)
+    {
+        int i = 0;
+        for( JComboBox eachCB : colorComboBoxes)
+        {
+            eachCB.setSelectedItem(_preset.getColor(i++));
+        }
+        
+    }
+
+    void setAvailableColorPresets(ArrayList<ColorPreset> _presets)
+    {
+        colorPreset.removeAllItems();
+        for( ColorPreset eachPreset : _presets)
+        {
+            colorPreset.addItem(eachPreset.getName());
         }
     }
     

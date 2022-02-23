@@ -23,11 +23,14 @@ import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
@@ -93,22 +96,41 @@ public class Mageek<T extends RealType<T>> implements Command
     /* The main UI */
     private MageekFrame dialog;
 
-    private final String[] SELECTED_EXTENSIONS_DEFAULT =
+    private final String[] SELECTED_EXTENSIONS_DEFAULT =  // TODO: convert to enum
     {
         "*.czi", "*.lif", "*.nd2"
     };
+    
+    private final String[] AVAILABLE_COLORS =  // TODO: convert to enum
+    {
+        "Red", "Green", "Blue", "Magenta"
+    };
+    
+    private final String Z_PROJECT_NONE = "None";
 
+    private final String[] AVAILABLE_ZPROJECTION = { // TODO: convert to enum
+        "Max Intensity",
+        "Average Intensity",
+        "Sum Slices",
+        "Min Intensity",
+        "Standard Deviation",
+        "Median",
+        Z_PROJECT_NONE
+    };
+    
+    private String zProjectionMode = "Max Intensity";
+    
+    private final String COLOR_PRESET_DEFAULT = "Confocal";
+
+    private final Map<String, ColorPreset> colorPresets = new HashMap();
+    
     @Override
     public void run()
     {
-
         log.log(LogLevel.INFO, String.format("Running %s ...", SCRIPT_TITLE));
 
-        dialog = new MageekFrame(ui.context());
-        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        dialog.setStatus(String.format("Welcome to %s v%s", SCRIPT_TITLE, SCRIPT_VERSION));
-        dialog.setSourceDirectory("Select a source directory ...");
-
+        dialog = new MageekFrame(ui.context());        
+        
         dialog.addBrowseBtnListener((ActionEvent evt) ->
         {
             dialog.setStatus("Browsing folder ...");
@@ -196,6 +218,52 @@ public class Mageek<T extends RealType<T>> implements Command
             dialog.setFileList(filteredFiles);
         });
 
+        dialog.addSelectZProjectionListener( (ItemEvent e) ->
+        {
+            zProjectionMode = (String)e.getItem();
+            log.info( String.format("ZProjection changed to %s", zProjectionMode));
+        });
+        
+        dialog.addSelectColorListener((ItemEvent e) ->
+        {
+            log.info("Color changed !");
+        });
+        
+        dialog.addSelectColorPresetListener((ItemEvent e) ->
+        {            
+            String presetName = (String)e.getItem();
+            log.info( String.format("ColorPreset changed to %s", presetName ));
+            dialog.setColorPreset( colorPresets.get(presetName));
+        });
+        
+        {
+            String[] colors = {"Magenta", "Red", "Green", "Blue"};
+            ColorPreset preset = new ColorPreset("Confocal", colors );
+            colorPresets.put(preset.getName(), preset);
+        }
+
+        {
+            String[] colors = {"Blue", "Green", "Red", "Magenta"};
+            ColorPreset preset = new ColorPreset("Legacy", colors );
+            colorPresets.put(preset.getName(), preset);
+        }
+
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setStatus(String.format("Welcome to %s v%s", SCRIPT_TITLE, SCRIPT_VERSION));
+        dialog.setSourceDirectory("Select a source directory ...");
+
+        dialog.setAvailableColors(AVAILABLE_COLORS);
+        dialog.setColor(AVAILABLE_COLORS[0], 0);
+        dialog.setColor(AVAILABLE_COLORS[0], 1);
+        dialog.setColor(AVAILABLE_COLORS[0], 2);
+        dialog.setColor(AVAILABLE_COLORS[0], 3);        
+
+        ArrayList presets = new ArrayList(colorPresets.values());
+        dialog.setAvailableColorPresets(presets);
+        dialog.setColorPreset(colorPresets.get(COLOR_PRESET_DEFAULT));
+        
+        dialog.setAvailableZProjection(AVAILABLE_ZPROJECTION);
+        dialog.setZProjection(Z_PROJECT_NONE);
         dialog.setVisible(true);
         dialog.setAlwaysOnTop(false);
     }
