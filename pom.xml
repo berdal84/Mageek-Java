@@ -117,5 +117,10 @@
                     <artifactId>commons-io</artifactId>
                     <version>2.6</version>
                 </dependency>
+	 <dependency>
+	  <groupId>org.netbeans.external</groupId>
+	  <artifactId>AbsoluteLayout</artifactId>
+	  <version>RELEASE126</version>
+	 </dependency>
 	</dependencies>
 </project>
