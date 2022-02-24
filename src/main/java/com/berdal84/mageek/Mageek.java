@@ -7,6 +7,9 @@
  */
 package com.berdal84.mageek;
 
+import io.scif.img.IO;
+import io.scif.img.ImgIOException;
+import io.scif.img.SCIFIOImgPlus;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
 import net.imglib2.type.numeric.RealType;
@@ -17,12 +20,12 @@ import org.scijava.run.RunService;
 import org.scijava.ui.DialogPrompt.MessageType;
 import org.scijava.ui.DialogPrompt.OptionType;
 import org.scijava.ui.DialogPrompt;
-
 import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
 import io.scif.services.DatasetIOService;
+import io.scif.services.DefaultDatasetIOService;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
@@ -33,14 +36,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
-import net.imagej.Dataset;
-import net.imagej.DefaultDataset;
 
+import net.imagej.ImgPlus;
+import net.imagej.*;
+import net.imagej.ImgPlusService;
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
  *
@@ -55,6 +56,9 @@ import net.imagej.DefaultDataset;
 public class Mageek<T extends RealType<T>>  implements Command
 {
     @Parameter
+    private ImgPlusService imgPlusService;
+    
+    @Parameter
     private RunService run;
     
     @Parameter
@@ -67,7 +71,7 @@ public class Mageek<T extends RealType<T>>  implements Command
     private LogService log;
 
     @Parameter
-    private DatasetIOService dataSetService;
+    private DefaultDatasetIOService dataSetService;
         
     /* The current source folder */
     private File sourceFolder;
@@ -160,43 +164,43 @@ public class Mageek<T extends RealType<T>>  implements Command
         
         dialog.addBrowseBtnListener( (ActionEvent evt)->
         {
-            dialog.setStatus("Browsing folder ...");
+                dialog.setStatus("Browsing folder ...");
 
-            askSourceDirectoryToUser();
+                askSourceDirectoryToUser();
 
-            if (sourceFolder != null)
-            {
-                dialog.setStatus(
-                        String.format(
-                                "Source folder %s picked. Click on process now.",
-                                sourceFolder.toString()
-                        )
-                );
-                dialog.setProgress(10);
+                if (sourceFolder != null)
+                {
+                    dialog.setStatus(
+                            String.format(
+                                    "Source folder %s picked. Click on process now.",
+                                    sourceFolder.toString()
+                            )
+                    );
+                    dialog.setProgress(10);
 
-                dialog.setSourceDirectory(sourceFolder.toString());
+                    dialog.setSourceDirectory(sourceFolder.toString());
 
-                scannedFiles = FileHelper.getFiles(sourceFolder, true);
-                dialog.setFileList(scannedFiles);
-                scannedFileExtensions = FileHelper.getFileExtensions(scannedFiles);
-                dialog.setFileExtensionList(scannedFileExtensions);
-                dialog.setSelectedFileExtensions(SELECTED_EXTENSIONS_DEFAULT);
-            }
-            else
-            {
-                dialog.setStatus("Browsing aborted.");
-                dialog.setProgress(0);
-                dialog.clearFileList();
-            }
+                    scannedFiles = FileHelper.getFiles(sourceFolder, true);
+                    dialog.setFileList(scannedFiles);
+                    scannedFileExtensions = FileHelper.getFileExtensions(scannedFiles);
+                    dialog.setFileExtensionList(scannedFileExtensions);
+                    dialog.setSelectedFileExtensions(SELECTED_EXTENSIONS_DEFAULT);
+                }
+                else
+                {
+                    dialog.setStatus("Browsing aborted.");
+                    dialog.setProgress(0);
+                    dialog.clearFileList();
+                }
         });
 
         dialog.addLaunchProcessListener((ActionEvent evt) ->
         {
-            dialog.setStatus("Processing ...");
-            processFiles();
-            dialog.setStatus("Processing DONE");
-            dialog.setProgress(100);
-            displayStatisticsInStatusBar();
+                dialog.setStatus("Processing ...");
+                processFiles();
+                dialog.setStatus("Processing DONE");
+                dialog.setProgress(100);
+                displayStatisticsInStatusBar();
         });
 
         dialog.addWindowListener(new WindowListener()
@@ -242,7 +246,7 @@ public class Mageek<T extends RealType<T>>  implements Command
         dialog.addFileExtSelectionListener((ListSelectionEvent e) ->
         {
             filterFiles( dialog.getSelectedFileExtensions() );
-            dialog.setFileList(filteredFiles);
+                dialog.setFileList(filteredFiles);
         });
 
         dialog.addSelectZProjectionListener( (ItemEvent e) ->
@@ -356,38 +360,30 @@ public class Mageek<T extends RealType<T>>  implements Command
                     )
             );
             
-            for ( File eachFile : filteredFiles)
+            processedFiles.clear();
+            ignoredFiles.clear();
+            
+            for (File file : filteredFiles)
             {
-                Dataset eachDataSet;
-                
-                if ( !dataSetService.canOpen(eachFile.getAbsolutePath()))
-                {
-                    log.warn( String.format("Unable to open file %s, ImageJ cannot open it.", eachFile.toString() ) );
-                    ignoredFiles.add(eachFile);
+                // The followind block only open "simple" formats (jpeg, png, etc...) but not czi, lif nor nd2.
+                if ( dataSetService.canOpen(file.toString()) )
+                {                       
+                    try 
+                    {
+                        Dataset img = dataSetService.open(file.toString());
+                        processedFiles.add(file);                
+                        dataSetService.save(img, destinationFolder.getAbsolutePath() + File.pathSeparator + file.getName());   
+                        log.info(String.format("Processing %s DONE", file.toString()));	
+                    }
+                    catch( IOException e)
+                    {
+                        log.warn(String.format("Unable to open file %s. Reason: %s", file.toString(), e.toString()) );
+                        ignoredFiles.add(file);
+                    }
                 }
                 else
                 {
-                    try
-                    {
-                        eachDataSet = dataSetService.open( eachFile.getAbsolutePath() );
-                        long size = eachDataSet.size();
-                        log.info(String.format("Loaded file %s", eachFile.toString()));
-                    }
-                    catch (IOException ex)
-                    {
-                        Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
-                        eachDataSet = null;
-                    }
-
-    //                        selectImage(serie_num);
-    //                        getDimensions(width, height, channels, slices, frames);
-    //                        outputFileName = destinationDirectory + File.separator + File.nameWithoutExtension + "_serie_" + serie_num;
-    //                        colorizeFile( outputFile, colorsUserChoice, channels, slices, frames );
-    //                        selectImage(serie_num);
-    //                        close();
-    //                }
-                    processedFiles.add(eachFile);
-                    log.info( String.format("Processing %s DONE", eachFile.toString()));	
+                    ignoredFiles.add(file);
                 }
             }
             log.info("Processing DONE");
@@ -481,11 +477,9 @@ public class Mageek<T extends RealType<T>>  implements Command
         else
         {
             innerMessage = String.format(
-                    "Process done, %d file(s) were generated into %s (scanned %d file(s), ignored: %d)",
-                    scannedFiles.size(),
-                    destinationFolder.toString(),
-                    ignoredFiles.size(),
-                    processedFiles.size()
+                    "Process done, %d file(s) processed (%d ignored)",
+                    processedFiles.size(),
+                    ignoredFiles.size()
             );
 
             messageType = MessageType.INFORMATION_MESSAGE;
