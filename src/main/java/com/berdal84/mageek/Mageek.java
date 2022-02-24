@@ -7,11 +7,10 @@
  */
 package com.berdal84.mageek;
 
+import net.imagej.ImageJ;
 import io.scif.img.IO;
 import io.scif.img.ImgIOException;
 import io.scif.img.SCIFIOImgPlus;
-import net.imagej.ImageJ;
-import net.imagej.ops.OpService;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -38,9 +37,9 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
-
+import net.imagej.Dataset;
+import net.imagej.DefaultImgPlusService;
 import net.imagej.ImgPlus;
-import net.imagej.*;
 import net.imagej.ImgPlusService;
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
@@ -56,16 +55,13 @@ import net.imagej.ImgPlusService;
 public class Mageek<T extends RealType<T>>  implements Command
 {
     @Parameter
-    private ImgPlusService imgPlusService;
+    private DefaultImgPlusService imgPlusService;
     
     @Parameter
     private RunService run;
     
     @Parameter
     private UIService ui;
-
-    @Parameter
-    private OpService op;
 
     @Parameter
     private LogService log;
@@ -597,6 +593,6 @@ public class Mageek<T extends RealType<T>>  implements Command
         // create the ImageJ application context with all available services
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
-        ij.command().run(Mageek.class, true);
+        ij.command().run(Mageek.class, false);
     }
 }
