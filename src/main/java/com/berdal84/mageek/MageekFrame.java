@@ -25,6 +25,7 @@ package com.berdal84.mageek;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -426,6 +427,11 @@ public class MageekFrame extends javax.swing.JFrame
 
     private DefaultListModel listModel = new DefaultListModel();
     
+    public void addBatchModeListener(PropertyChangeListener listener)
+    { 
+        batchCheckBox.addPropertyChangeListener(listener);
+    }
+        
     public void addFileExtSelectionListener(ListSelectionListener listener)
     { 
         extensionList.addListSelectionListener(listener);

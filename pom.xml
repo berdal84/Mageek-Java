@@ -119,18 +119,15 @@
             <artifactId>AbsoluteLayout</artifactId>
             <version>RELEASE126</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.scif/scifio -->
-        <dependency>
-            <groupId>io.scif</groupId>
-            <artifactId>scifio</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.imglib2</groupId>
-            <artifactId>imglib2</artifactId>
-        </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ome</groupId>
+            <artifactId>bio-formats_plugins</artifactId>
+            <version>6.1.1</version>
             <type>jar</type>
         </dependency>
     </dependencies>

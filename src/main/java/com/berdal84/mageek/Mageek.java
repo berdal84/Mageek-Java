@@ -7,10 +7,9 @@
  */
 package com.berdal84.mageek;
 
+import ij.IJ;
+import ij.ImagePlus;
 import net.imagej.ImageJ;
-import io.scif.img.IO;
-import io.scif.img.ImgIOException;
-import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -23,24 +22,27 @@ import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
-import io.scif.services.DatasetIOService;
 import io.scif.services.DefaultDatasetIOService;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
+import loci.formats.FormatException;
+import loci.plugins.BF;
 import net.imagej.Dataset;
 import net.imagej.DefaultImgPlusService;
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusService;
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
  *
@@ -69,38 +71,38 @@ public class Mageek<T extends RealType<T>>  implements Command
     @Parameter
     private DefaultDatasetIOService dataSetService;
         
+    /* in batch mode, files loaded are not displayed. All the process is done in background */
+    private boolean batchMode;
+    
     /* The current source folder */
     private File sourceFolder;
 
     /* The current destination folder */
     private File destinationFolder;
 
-    /* User home folder */
-    private final File HOME_FOLDER = new File(System.getProperty("user.home"));
-
     /* Subfolder name to put all analysed files */
-    private final String ANALYSED_SUBFOLDER_PATH = "ANALYSED";
+    private final String analysedFolderName ;
 
     /* The script title */
-    private final String SCRIPT_TITLE = "Mageek";
+    private final String title;
 
     /* The script title */
-    private final String SCRIPT_VERSION = "1.0.0";
+    private final String version;
 
     /* Scanned extensions */
-    private ArrayList<String> scannedFileExtensions = new ArrayList<String>();
+    private ArrayList<String> scannedFileExtensions;
 
     /* Scanned files */
-    private ArrayList<File> scannedFiles = new ArrayList<File>();
+    private ArrayList<File> scannedFiles;
 
     /* Filtered files */
-    private ArrayList<File> filteredFiles = new ArrayList<File>();
+    private ArrayList<File> filteredFiles;
 
     /* Ignored files */
-    private final ArrayList<File> ignoredFiles = new ArrayList<File>();
+    private final ArrayList<File> ignoredFiles;
 
     /* Processed files */
-    private final ArrayList<File> processedFiles = new ArrayList<File>();
+    private final ArrayList<File> processedFiles;
 
     /* The main UI */
     private MageekFrame dialog;
@@ -112,7 +114,7 @@ public class Mageek<T extends RealType<T>>  implements Command
         "*.nd2"
     };
     
-    private final String Z_PROJECT_NONE = "None";
+    private static final String Z_PROJECT_NONE = "None";
 
     private final String[] AVAILABLE_ZPROJECTION = { // TODO: convert to enum
         "Max Intensity",
@@ -124,14 +126,27 @@ public class Mageek<T extends RealType<T>>  implements Command
         Z_PROJECT_NONE
     };
     
-    private String zProjectionMode = "Max Intensity";
+    private String zProjectionMode;
     
-    private final String COLOR_PRESET_DEFAULT = "Confocal";
+    private final String defaultColorPresetName;
 
-    private final Map<String, ColorPreset> colorPresets = new HashMap();
+    private final Map<String, ColorPreset> colorPresets;
     
     public Mageek()
     {
+        title   = "Mageek";
+        version = "1.0.0";
+        batchMode = true;
+        analysedFolderName = "ANALYSED";
+        scannedFileExtensions = new ArrayList<>();
+        scannedFiles   = new ArrayList<>();
+        filteredFiles  = new ArrayList<>();
+        ignoredFiles   = new ArrayList<>();
+        processedFiles = new ArrayList<>();
+        zProjectionMode = "Max Intensity";
+        defaultColorPresetName = "Confocal";
+        
+        colorPresets = new HashMap();
         {
             Color[] colors = { Color.BLUE , Color.RED, Color.GREEN, Color.MAGENTA};
             ColorPreset preset = new ColorPreset("Confocal", colors );
@@ -154,7 +169,7 @@ public class Mageek<T extends RealType<T>>  implements Command
     @Override
     public void run()
     {
-        log.log(LogLevel.INFO, String.format("Running %s ...", SCRIPT_TITLE));
+        log.log(LogLevel.INFO, String.format("Running %s ...", title));
 
         dialog = new MageekFrame(ui.context());
         
@@ -280,6 +295,11 @@ public class Mageek<T extends RealType<T>>  implements Command
             }
         });
         
+        dialog.addBatchModeListener((PropertyChangeEvent e) ->
+        {            
+            batchMode = (boolean)e.getNewValue();
+        });
+                
         {
             Color[] colors = { Color.NULL , Color.NULL, Color.NULL, Color.NULL};
             ColorPreset preset = new ColorPreset("Custom", colors );
@@ -299,14 +319,14 @@ public class Mageek<T extends RealType<T>>  implements Command
         }
 
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        dialog.setStatus(String.format("Welcome to %s v%s", SCRIPT_TITLE, SCRIPT_VERSION));
+        dialog.setStatus(String.format("Welcome to %s v%s", title, version));
         dialog.setSourceDirectory("Select a source directory ...");
 
         dialog.setAvailableColors(Color.ALL);      
 
         ArrayList presets = new ArrayList(colorPresets.values());
         dialog.setAvailableColorPresets(presets);
-        dialog.setColorPreset(colorPresets.get(COLOR_PRESET_DEFAULT), true);
+        dialog.setColorPreset(colorPresets.get(defaultColorPresetName), true);
         
         dialog.setAvailableZProjection(AVAILABLE_ZPROJECTION);
         dialog.setZProjection(Z_PROJECT_NONE);
@@ -361,27 +381,37 @@ public class Mageek<T extends RealType<T>>  implements Command
             
             for (File file : filteredFiles)
             {
-                // The followind block only open "simple" formats (jpeg, png, etc...) but not czi, lif nor nd2.
-                if ( dataSetService.canOpen(file.toString()) )
-                {                       
-                    try 
-                    {
+                try 
+                {  
+                    // The followind block only open "simple" formats (jpeg, png, etc...) but not czi, lif nor nd2.
+                    if ( dataSetService.canOpen(file.toString()) )
+                    {                     
                         Dataset img = dataSetService.open(file.toString());
                         processedFiles.add(file);                
                         dataSetService.save(img, destinationFolder.getAbsolutePath() + File.pathSeparator + file.getName());   
                         log.info(String.format("Processing %s DONE", file.toString()));	
                     }
-                    catch( IOException e)
+                    else
                     {
-                        log.warn(String.format("Unable to open file %s. Reason: %s", file.toString(), e.toString()) );
-                        ignoredFiles.add(file);
+                        ImagePlus[] imps = BF.openImagePlus(file.toString());                        
+
+                        for (ImagePlus imp : imps)
+                        {
+                            if (!batchMode)
+                            {
+                                imp.show();
+                            }
+                            imp.close();
+                        }  
                     }
                 }
-                else
+                catch( IOException | FormatException e)
                 {
+                    log.warn(String.format("Unable to open file %s. Reason: %s", file.toString(), e.getMessage()) );
                     ignoredFiles.add(file);
                 }
             }
+
             log.info("Processing DONE");
         }
         else
@@ -399,7 +429,9 @@ public class Mageek<T extends RealType<T>>  implements Command
     private void askSourceDirectoryToUser()
     {
         // ask user to pick a source folder
-        File pickedFolder = ui.chooseFile(HOME_FOLDER, FileWidget.DIRECTORY_STYLE);
+        File pickedFolder = ui.chooseFile(
+                new File(System.getProperty("user.home")),
+                FileWidget.DIRECTORY_STYLE);
 
         if (pickedFolder == null)
         {
@@ -411,11 +443,10 @@ public class Mageek<T extends RealType<T>>  implements Command
         {
             sourceFolder = pickedFolder;
 
-            String destFolderPath = String.format(
-                    "%s%s%s",
+            String destFolderPath = String.format("%s%s%s",
                     sourceFolder.getAbsolutePath(),
                     File.separator,
-                    ANALYSED_SUBFOLDER_PATH
+                    analysedFolderName
             );
 
             destinationFolder = new File(destFolderPath);
