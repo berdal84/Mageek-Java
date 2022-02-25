@@ -7,8 +7,9 @@
  */
 package com.berdal84.mageek;
 
-import ij.IJ;
+
 import ij.ImagePlus;
+import ij.Macro;
 import net.imagej.ImageJ;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
@@ -28,11 +29,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,9 +42,19 @@ import java.util.logging.Logger;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import loci.formats.FormatException;
-import loci.plugins.BF;
-import net.imagej.Dataset;
 import net.imagej.DefaultImgPlusService;
+
+import loci.plugins.BF;
+import loci.plugins.LociImporter;
+import loci.plugins.in.DisplayHandler;
+import loci.plugins.in.ImagePlusReader;
+import loci.plugins.in.ImportProcess;
+import loci.plugins.in.ImporterOptions;
+import static loci.plugins.in.ImporterOptions.VIEW_HYPERSTACK;
+import loci.plugins.util.LibraryChecker;
+import org.scijava.plugin.PluginInfo;
+import org.scijava.plugin.SciJavaPlugin;
+
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
  *
@@ -366,6 +378,8 @@ public class Mageek<T extends RealType<T>>  implements Command
      */
     private void processFiles()
     {
+        final ArrayList<ImagePlus[]> allImages = new ArrayList<>();
+        
         if (sourceFolder != null)
         {
             log.log(
@@ -378,41 +392,59 @@ public class Mageek<T extends RealType<T>>  implements Command
             
             processedFiles.clear();
             ignoredFiles.clear();
-            
+           
             for (File file : filteredFiles)
             {
-                try 
-                {  
-                    // The followind block only open "simple" formats (jpeg, png, etc...) but not czi, lif nor nd2.
-                    if ( dataSetService.canOpen(file.toString()) )
-                    {                     
-                        Dataset img = dataSetService.open(file.toString());
-                        processedFiles.add(file);                
-                        dataSetService.save(img, destinationFolder.getAbsolutePath() + File.pathSeparator + file.getName());   
-                        log.info(String.format("Processing %s DONE", file.toString()));	
-                    }
-                    else
-                    {
-                        ImagePlus[] imps = BF.openImagePlus(file.toString());                        
-
-                        for (ImagePlus imp : imps)
-                        {
-                            if (!batchMode)
-                            {
-                                imp.show();
-                            }
-                            imp.close();
-                        }  
-                    }
-                }
-                catch( IOException | FormatException e)
+                try
                 {
-                    log.warn(String.format("Unable to open file %s. Reason: %s", file.toString(), e.getMessage()) );
+                    log.info( String.format("Processing file %s ...", file.toPath()));
+                    ImagePlus[] imgs = open(file);
+                   
+                    if  ( imgs.length > 0 )
+                    {
+                       allImages.add(imgs);
+                       
+                       for(ImagePlus img : imgs )
+                       {
+                           // TODO: Split channel, colorize, save as *.tiff
+                       }
+                    }
+                    processedFiles.add(file);
+                    log.info( String.format("File %s processed.", file.toPath()));
+                }
+                catch (Exception ex)
+                {
                     ignoredFiles.add(file);
+                    Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
             log.info("Processing DONE");
+            
+           if ( !batchMode && !allImages.isEmpty() )
+           {
+               DialogPrompt.Result response =
+                    ui.showDialog(
+                        "Would you like to open the images?",
+                        MessageType.QUESTION_MESSAGE,
+                        OptionType.YES_NO_OPTION
+                   );
+               
+               if( response.equals( DialogPrompt.Result.YES_OPTION ) )
+               {
+                   allImages.forEach( (ImagePlus[] imgs )->
+                   {
+                       for(ImagePlus img : imgs )
+                       {
+                           img.show();
+                       }
+                   });
+               }
+           }
+           else
+           {
+               log.info("No images were loaded :(");
+           }
         }
         else
         {
@@ -625,5 +657,64 @@ public class Mageek<T extends RealType<T>>  implements Command
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
         ij.command().run(Mageek.class, false);
+    }
+
+    private ImagePlus[] open(File file) throws IOException, FormatException   
+    {
+        ImporterOptions options = new ImporterOptions();
+        if (Macro.getOptions() == null) {
+          options.loadOptions();
+        }
+        options.setLocation(file.getPath());
+        options.setId(file.getPath());        
+        options.setStackFormat(VIEW_HYPERSTACK);
+        options.checkObsoleteOptions();
+    
+        ImportProcess process = new ImportProcess(options);
+
+        BF.debug("display metadata");
+        DisplayHandler displayHandler = new DisplayHandler(process);
+        displayHandler.displayOriginalMetadata();
+        displayHandler.displayOMEXML();
+
+        BF.debug("read pixel data");
+        ImagePlusReader reader = new ImagePlusReader(process);
+        ImagePlus[] imps = reader.openImagePlus();
+
+        BF.debug("display pixels");
+        displayHandler.displayImages(imps);
+
+        BF.debug("display ROIs");
+        displayHandler.displayROIs(imps);
+        
+        return imps;
+    }
+    
+    private ImagePlus[] open_wip(File file) throws IOException, FormatException
+    {
+        ImagePlus[] result = {};
+        
+        LociImporter i = new LociImporter();
+        i.run("quiet");
+        
+        ImporterOptions options = new ImporterOptions();
+        options.setId(file.getPath());
+        ImportProcess process = new ImportProcess(options);
+
+        if (process.execute())
+        {
+            DisplayHandler displayHandler = new DisplayHandler(process);
+            if ( options.isShowOMEXML())
+            {
+                displayHandler.displayOMEXML();
+            }
+
+            ImagePlusReader reader = new ImagePlusReader(process);
+
+            result = reader.openImagePlus();
+
+        }
+
+        return result;
     }
 }

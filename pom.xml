@@ -106,13 +106,22 @@
             <id>scijava.public</id>
             <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>ome</id>
+            <name>OME Artifactory</name>
+            <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.external</groupId>
@@ -125,10 +134,13 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>net.imglib2</groupId>
+            <artifactId>imglib2-ij</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
-            <version>6.1.1</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 </project>
