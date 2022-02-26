@@ -18,6 +18,7 @@ import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.LUT;
 import io.scif.services.DatasetIOService;
 import net.imagej.ImageJ;
 import net.imglib2.type.numeric.RealType;
@@ -446,37 +447,20 @@ public class Mageek<T extends RealType<T>>  implements Command
                             int channel = 0;
                             for (ImagePlus img : channels)
                             {
-                                ImageProcessor p = img.getChannelProcessor().convertToColorProcessor();
-
-                                int[][] colors =
+                                ImageProcessor p = img.getProcessor();
+                                
+                                java.awt.Color color;
+                                java.awt.Color[] colors =
                                 {
-                                    {
-                                        255, 0, 0
-                                    },{
-                                        0, 255, 0
-                                    },{
-                                        0, 0, 255
-                                    },{
-                                        255, 127, 127
-                                    }
+                                    java.awt.Color.RED,
+                                    java.awt.Color.GREEN,
+                                    java.awt.Color.BLUE,
+                                    java.awt.Color.MAGENTA
                                 };
-
-                                // write brightness
-                                for (int y = 0; y < img.getHeight(); y++)
-                                {
-                                    for (int x = 0; x < img.getWidth(); x++)
-                                    {
-                                        double value = p.getValue(x, y);
-                                        double inv_value = 255.0 - value;
-                                        int[] col =
-                                        {
-                                            colors[channel][0] * (int)value,
-                                            colors[channel][1] * (int)value,
-                                            colors[channel][2] * (int)value,
-                                        };
-                                        p.putPixel(x, y, col);
-                                    }
-                                }
+                                color = colors[channel];
+                                
+                                LUT lut = LUT.createLutFromColor(color);
+                                p.setLut(lut);
 
                                 String outputPath = String.format(
                                         "%s%s%s_serie_%d_channel_%d.tiff",
