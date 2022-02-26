@@ -447,6 +447,12 @@ public class Mageek<T extends RealType<T>>  implements Command
                             int channel = 0;
                             for (ImagePlus img : channels)
                             {
+                                
+                                if ( img.getNSlices() > 1 )
+                                {
+                                    img = ij.plugin.ZProjector.run(img, zProjectionMode );
+                                }                                
+                                
                                 ImageProcessor p = img.getProcessor();
                                 
                                 java.awt.Color color;
