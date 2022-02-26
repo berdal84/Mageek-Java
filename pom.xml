@@ -142,5 +142,9 @@
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.imglib2</groupId>
+            <artifactId>imglib2-ij</artifactId>
+        </dependency>
     </dependencies>
 </project>

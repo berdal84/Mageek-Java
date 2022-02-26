@@ -10,6 +10,8 @@ package com.berdal84.mageek;
 
 import ij.ImagePlus;
 import ij.Macro;
+import ij.io.FileSaver;
+import io.scif.services.DatasetIOService;
 import net.imagej.ImageJ;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
@@ -51,7 +53,13 @@ import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
 import loci.plugins.in.ImporterOptions;
 import static loci.plugins.in.ImporterOptions.VIEW_HYPERSTACK;
+import loci.plugins.in.ImporterPrompter;
 import loci.plugins.util.LibraryChecker;
+import net.imagej.DatasetService;
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.test.ImgLib2Assert;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.SciJavaPlugin;
 
@@ -69,9 +77,6 @@ import org.scijava.plugin.SciJavaPlugin;
 public class Mageek<T extends RealType<T>>  implements Command
 {
     @Parameter
-    private DefaultImgPlusService imgPlusService;
-    
-    @Parameter
     private RunService run;
     
     @Parameter
@@ -81,7 +86,10 @@ public class Mageek<T extends RealType<T>>  implements Command
     private LogService log;
 
     @Parameter
-    private DefaultDatasetIOService dataSetService;
+    DatasetService ds;
+
+    @Parameter
+    DatasetIOService io;
         
     /* in batch mode, files loaded are not displayed. All the process is done in background */
     private boolean batchMode;
@@ -143,6 +151,22 @@ public class Mageek<T extends RealType<T>>  implements Command
     private final String defaultColorPresetName;
 
     private final Map<String, ColorPreset> colorPresets;
+    
+     /**
+     * This main function serves for development purposes. It allows you to run
+     * the plugin immediately out of your integrated development environment
+     * (IDE).
+     *
+     * @param args whatever, it's ignored
+     * @throws Exception
+     */
+    public static void main(final String... args) throws Exception
+    {
+        // create the ImageJ application context with all available services
+        final ImageJ ij = new ImageJ();
+        ij.ui().showUI();
+        ij.command().run(Mageek.class, false);
+    }
     
     public Mageek()
     {
@@ -378,7 +402,9 @@ public class Mageek<T extends RealType<T>>  implements Command
      */
     private void processFiles()
     {
+        
         final ArrayList<ImagePlus[]> allImages = new ArrayList<>();
+        dialog.setProgress(0);
         
         if (sourceFolder != null)
         {
@@ -397,29 +423,55 @@ public class Mageek<T extends RealType<T>>  implements Command
             {
                 try
                 {
-                    log.info( String.format("Processing file %s ...", file.toPath()));
+                    dialog.setStatus(String.format("Processing file %s ...", file.toPath()));
                     ImagePlus[] imgs = open(file);
                    
                     if  ( imgs.length > 0 )
                     {
                        allImages.add(imgs);
                        
+                       int channel = 0;
                        for(ImagePlus img : imgs )
                        {
-                           // TODO: Split channel, colorize, save as *.tiff
+                           String path;
+                           
+                           if ( imgs.length > 1)
+                           {
+                                path = String.format(
+                                        "%s%s%s_%s.tiff",
+                                        destinationFolder.getAbsolutePath(),
+                                        File.separator,
+                                        file.getName(),
+                                        dialog.getSelectedColorAt(channel++) // TODO: store color in Mageek
+                                );     
+                           }
+                           else
+                           {
+                               path = String.format(
+                                        "%s%s%s.tiff",
+                                        destinationFolder.getAbsolutePath(),
+                                        File.separator,
+                                        file.getName()
+                                );     
+                           }
+                           
+                           FileSaver saver = new FileSaver(img);
+                           saver.saveAsTiff(path);
                        }
-                    }
-                    processedFiles.add(file);
-                    log.info( String.format("File %s processed.", file.toPath()));
+                    }                    
+                    dialog.setStatus( String.format("File %s processed.", file.toPath()));
                 }
                 catch (Exception ex)
                 {
                     ignoredFiles.add(file);
                     Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                processedFiles.add(file);
+
+                dialog.setProgress( processedFiles.size() / filteredFiles.size() * 100);
             }
 
-            log.info("Processing DONE");
+            dialog.setStatus("Processing DONE");
             
            if ( !batchMode && !allImages.isEmpty() )
            {
@@ -443,7 +495,7 @@ public class Mageek<T extends RealType<T>>  implements Command
            }
            else
            {
-               log.info("No images were loaded :(");
+               dialog.setStatus("No images were loaded :(");
            }
         }
         else
@@ -642,79 +694,42 @@ public class Mageek<T extends RealType<T>>  implements Command
 
     }
 
-    
-    /**
-     * This main function serves for development purposes. It allows you to run
-     * the plugin immediately out of your integrated development environment
-     * (IDE).
-     *
-     * @param args whatever, it's ignored
-     * @throws Exception
-     */
-    public static void main(final String... args) throws Exception
-    {
-        // create the ImageJ application context with all available services
-        final ImageJ ij = new ImageJ();
-        ij.ui().showUI();
-        ij.command().run(Mageek.class, false);
-    }
-
     private ImagePlus[] open(File file) throws IOException, FormatException   
     {
+  
         ImporterOptions options = new ImporterOptions();
-        if (Macro.getOptions() == null) {
-          options.loadOptions();
-        }
-        options.setLocation(file.getPath());
         options.setId(file.getPath());        
-        options.setStackFormat(VIEW_HYPERSTACK);
-        options.checkObsoleteOptions();
-    
+        options.setWindowless(true);
+        
         ImportProcess process = new ImportProcess(options);
+        /*
+         * @link {loci.plugins.in.Importer.showDialogs}
+         * Goto to the source coe linked above to understand why we need this Prompter.
+         */
+        ImporterPrompter prompter = new ImporterPrompter(process);
+                
+        process.execute();
 
-        BF.debug("display metadata");
+        log.debug("display metadata");
         DisplayHandler displayHandler = new DisplayHandler(process);
         displayHandler.displayOriginalMetadata();
         displayHandler.displayOMEXML();
 
-        BF.debug("read pixel data");
+        log.debug("read pixel data");
         ImagePlusReader reader = new ImagePlusReader(process);
         ImagePlus[] imps = reader.openImagePlus();
 
-        BF.debug("display pixels");
-        displayHandler.displayImages(imps);
-
-        BF.debug("display ROIs");
-        displayHandler.displayROIs(imps);
+//        log.debug("display pixels");
+//        displayHandler.displayImages(imps);
+//
+//        log.debug("display ROIs");
+//        displayHandler.displayROIs(imps);   
+        
+        if (!process.getOptions().isVirtual())
+        {
+            process.getReader().close();
+        }
         
         return imps;
-    }
-    
-    private ImagePlus[] open_wip(File file) throws IOException, FormatException
-    {
-        ImagePlus[] result = {};
-        
-        LociImporter i = new LociImporter();
-        i.run("quiet");
-        
-        ImporterOptions options = new ImporterOptions();
-        options.setId(file.getPath());
-        ImportProcess process = new ImportProcess(options);
-
-        if (process.execute())
-        {
-            DisplayHandler displayHandler = new DisplayHandler(process);
-            if ( options.isShowOMEXML())
-            {
-                displayHandler.displayOMEXML();
-            }
-
-            ImagePlusReader reader = new ImagePlusReader(process);
-
-            result = reader.openImagePlus();
-
-        }
-
-        return result;
     }
 }
