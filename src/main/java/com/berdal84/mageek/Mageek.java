@@ -8,9 +8,16 @@
 package com.berdal84.mageek;
 
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.Macro;
 import ij.io.FileSaver;
+import ij.plugin.ChannelSplitter;
+import ij.process.ByteProcessor;
+import ij.process.ColorProcessor;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
 import io.scif.services.DatasetIOService;
 import net.imagej.ImageJ;
 import net.imglib2.type.numeric.RealType;
@@ -30,6 +37,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
@@ -425,39 +434,67 @@ public class Mageek<T extends RealType<T>>  implements Command
                 {
                     dialog.setStatus(String.format("Processing file %s ...", file.toPath()));
                     ImagePlus[] imgs = open(file);
-                   
+
                     if  ( imgs.length > 0 )
                     {
-                       allImages.add(imgs);
-                       
-                       int channel = 0;
-                       for(ImagePlus img : imgs )
-                       {
-                           String path;
-                           
-                           if ( imgs.length > 1)
-                           {
-                                path = String.format(
-                                        "%s%s%s_%s.tiff",
+                       allImages.add(imgs);                      
+                       int serie = 0;
+                       for(ImagePlus images : imgs )
+                        {
+                            ImagePlus[] channels = ChannelSplitter.split(images);
+                            
+                            int channel = 0;
+                            for (ImagePlus img : channels)
+                            {
+                                ImageProcessor p = img.getChannelProcessor().convertToColorProcessor();
+
+                                int[][] colors =
+                                {
+                                    {
+                                        255, 0, 0
+                                    },{
+                                        0, 255, 0
+                                    },{
+                                        0, 0, 255
+                                    },{
+                                        255, 127, 127
+                                    }
+                                };
+
+                                // write brightness
+                                for (int y = 0; y < img.getHeight(); y++)
+                                {
+                                    for (int x = 0; x < img.getWidth(); x++)
+                                    {
+                                        double value = p.getValue(x, y);
+                                        double inv_value = 255.0 - value;
+                                        int[] col =
+                                        {
+                                            colors[channel][0] * (int)value,
+                                            colors[channel][1] * (int)value,
+                                            colors[channel][2] * (int)value,
+                                        };
+                                        p.putPixel(x, y, col);
+                                    }
+                                }
+
+                                String outputPath = String.format(
+                                        "%s%s%s_serie_%d_channel_%d.tiff",
                                         destinationFolder.getAbsolutePath(),
                                         File.separator,
                                         file.getName(),
-                                        dialog.getSelectedColorAt(channel++) // TODO: store color in Mageek
-                                );     
-                           }
-                           else
-                           {
-                               path = String.format(
-                                        "%s%s%s.tiff",
-                                        destinationFolder.getAbsolutePath(),
-                                        File.separator,
-                                        file.getName()
-                                );     
-                           }
-                           
-                           FileSaver saver = new FileSaver(img);
-                           saver.saveAsTiff(path);
-                       }
+                                        serie,
+                                        channel
+                                );
+
+                                ImagePlus out = new ImagePlus("out", p.createImage());
+                                FileSaver saver = new FileSaver(out);
+                                saver.saveAsTiff(outputPath);
+                                channel++;
+                            }
+                            serie++;
+                        }
+
                     }                    
                     dialog.setStatus( String.format("File %s processed.", file.toPath()));
                 }
@@ -469,6 +506,7 @@ public class Mageek<T extends RealType<T>>  implements Command
                 processedFiles.add(file);
 
                 dialog.setProgress( processedFiles.size() / filteredFiles.size() * 100);
+                dialog.repaint();
             }
 
             dialog.setStatus("Processing DONE");
@@ -698,7 +736,9 @@ public class Mageek<T extends RealType<T>>  implements Command
     {
   
         ImporterOptions options = new ImporterOptions();
-        options.setId(file.getPath());        
+        options.setId(file.getPath());  
+        options.setOpenAllSeries(true);
+        options.setSplitChannels(false);
         options.setWindowless(true);
         
         ImportProcess process = new ImportProcess(options);
