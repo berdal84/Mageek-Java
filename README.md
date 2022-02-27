@@ -8,7 +8,7 @@ Mageek use ImageJ and Bio-Format to:
 - open multi series
 - project slices
 - split channels (up to 4)
-- tint each channel using a color.
+- apply a LUT to each channel.
 - save the result as a *.tiff
 
 Here is the result of processing a single *.czi file and putting the 4 channels in a row:
