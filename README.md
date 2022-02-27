@@ -36,7 +36,7 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 ![Screen Shot 2022-02-27 at 4 07 22 PM](https://user-images.githubusercontent.com/942052/155899978-e34ee811-dbca-4695-a4e9-e5994225a79a.png)
 
-- Search for `Mageek`, you should find it quickly.
+- Search for `Mageek`, you should find it quickly by typing `Mageek` in the search field.
 
 ![Screen Shot 2022-02-27 at 4 17 47 PM](https://user-images.githubusercontent.com/942052/155900275-4353bac0-4c32-4192-8932-747688042815.png)
 
