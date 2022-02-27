@@ -536,14 +536,14 @@ public class MageekFrame extends javax.swing.JFrame
         }
     }
     
-    void setAvailableColors(Color[] _colors)
+    void setAvailableColors(MColor[] _colors)
     {
         for( JComboBox eachCB : colorComboBoxes )
         {
             eachCB.removeAllItems();
         }
         
-        for( Color eachColor : _colors)
+        for( MColor eachColor : _colors)
         {
             for( JComboBox eachCB : colorComboBoxes )
             {
@@ -552,7 +552,7 @@ public class MageekFrame extends javax.swing.JFrame
         }
     }
     
-    void setColor(Color _color, int _channel)
+    void setColor(MColor _color, int _channel)
     {
         colorComboBoxes
                 .get(_channel)
@@ -573,7 +573,7 @@ public class MageekFrame extends javax.swing.JFrame
         zProjectionComboBox.setSelectedItem(_projection);
     }
 
-    void setColorPreset(ColorPreset _preset, boolean _setColors)
+    void setColorPreset(MColorPreset _preset, boolean _setColors)
     {
         colorPreset.setSelectedItem(_preset.getName());
         if ( _setColors )
@@ -587,20 +587,22 @@ public class MageekFrame extends javax.swing.JFrame
                     removeSelectColorListener(listener);
                 }
                 
-                eachCB.setSelectedItem(_preset.getColor(i++).toString());
+                eachCB.setSelectedItem(_preset.getIJColorStringAt(i));
                 
                 for(ItemListener listener : listeners)
                 {
                     addSelectColorListener(listener);
                 }
+                
+                i++;
             } 
         }
     }
 
-    void setAvailableColorPresets(ArrayList<ColorPreset> _presets)
+    void setAvailableColorPresets(ArrayList<MColorPreset> _presets)
     {
         colorPreset.removeAllItems();
-        for( ColorPreset eachPreset : _presets)
+        for( MColorPreset eachPreset : _presets)
         {
             colorPreset.addItem(eachPreset.getName());
         }
@@ -611,7 +613,7 @@ public class MageekFrame extends javax.swing.JFrame
         return (String) colorPreset.getSelectedItem();
     }
 
-    String getSelectedColorAt(int i)
+    String getSelectedIJColorStringAt(int i)
     {
         return (String) colorComboBoxes.get(i).getSelectedItem();
     }

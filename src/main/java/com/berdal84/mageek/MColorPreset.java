@@ -23,36 +23,82 @@
  */
 package com.berdal84.mageek;
 
-import java.lang.reflect.Array;
+import java.awt.Color;
 
 /**
  *
  * @author berenger
  */
-public class ColorPreset
+public class MColorPreset
 {
     private String name;
-    private Color[] colors;
+    private MColor[] colors;
     
-    ColorPreset(
+    MColorPreset()
+    {
+        name   = "";
+        MColor[] colors =
+        {
+            MColor.Null,
+            MColor.Null,
+            MColor.Null,
+            MColor.Null
+        };
+        this.colors = colors;
+    }
+    
+    MColorPreset( String _name )
+    {
+        name   = _name;
+        MColor[] colors =
+        {
+            MColor.Null,
+            MColor.Null,
+            MColor.Null,
+            MColor.Null
+        };
+        this.colors = colors;
+    }
+    
+    MColorPreset(
         String _name,
-        Color[] _colors
+        MColor _color0,
+        MColor _color1,
+        MColor _color2,
+        MColor _color3
     )
     {
-        if (_colors.length != 4 )
-        {
-            throw new IllegalArgumentException("_colors.length must be 4.");
-        }
-        name   = _name;
-        colors = _colors.clone();
+        this.name   = _name;
+        this.colors = new MColor[]{
+            _color0,
+            _color1,
+            _color2,
+            _color3
+        };
     };
-
-    final Color getColor(int _index)
+    
+    MColorPreset(final MColorPreset _other)
+    {
+        this.name   = _other.name;
+        this.colors = new MColor[]{
+            _other.colors[0],
+            _other.colors[1],
+            _other.colors[2],
+            _other.colors[3]
+        };
+    };
+    
+    final Color getColorAt(int _index)
+    {
+        return colors[_index].getColor();
+    }
+        
+    final MColor getMetaColorAt(int _index)
     {
         return colors[_index];
     }
     
-    final String getColorString(int _index)
+    final String getIJColorStringAt(int _index)
     {
         return colors[_index].toString();
     }
@@ -60,5 +106,10 @@ public class ColorPreset
     final String getName()
     {
         return name;
+    }
+
+    void setIJColorStringAt(int i, String _ijColorString)
+    {
+        colors[i] = MColor.getWithIJString(_ijColorString);
     }
 }
