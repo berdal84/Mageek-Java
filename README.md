@@ -2,7 +2,7 @@
 
 # Mageek (Java)
 
-Mageek is an ImageJ Plugin to process microscop images files in Fiji.
+Mageek is an ImageJ Plugin to process microscope images files in Fiji.
 
 Mageek use ImageJ and Bio-Format to:
 - open multi series
@@ -28,7 +28,7 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 - Run Fiji
 
-- On the main menu, click on `Plugins -> Install Plugin` and select the unzipped `Mageek.jar` file.
+- On the main menu, click on `Plugins -> Install` and select the unzipped `Mageek.jar` file.
 
 ![Screen Shot 2022-02-27 at 4 05 27 PM](https://user-images.githubusercontent.com/942052/155899936-2d0b487f-83ca-418f-958d-4d1586895f26.png)
 
