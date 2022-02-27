@@ -103,6 +103,12 @@ public class MColorPreset
     {
         return colors[_index];
     }
+    
+    final void setMetaColorAt(int _index, MColor _color)
+    {
+        colors[_index] = _color;
+    }
+
 
     final String getIJColorStringAt(int _index)
     {

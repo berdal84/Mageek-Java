@@ -226,16 +226,8 @@ public class MageekFrame extends javax.swing.JFrame
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel9.setText("Channel 4");
 
-        batchCheckBox.setSelected(true);
         batchCheckBox.setText("Batch Mode");
         batchCheckBox.setToolTipText("Enable by default, will process the images in background (faster).");
-        batchCheckBox.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                batchCheckBoxActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout colorPanelLayout = new javax.swing.GroupLayout(colorPanel);
         colorPanel.setLayout(colorPanelLayout);
@@ -353,10 +345,6 @@ public class MageekFrame extends javax.swing.JFrame
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void batchCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_batchCheckBoxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_batchCheckBoxActionPerformed
 
     private void extensionListValueChanged(javax.swing.event.ListSelectionEvent evt)//GEN-FIRST:event_extensionListValueChanged
     {//GEN-HEADEREND:event_extensionListValueChanged
@@ -615,6 +603,11 @@ public class MageekFrame extends javax.swing.JFrame
     String getSelectedIJColorStringAt(int i)
     {
         return (String) colorComboBoxes.get(i).getSelectedItem();
+    }
+
+    void setBatchMode(boolean batchMode)
+    {
+        batchCheckBox.setSelected(batchMode);
     }
     
 };

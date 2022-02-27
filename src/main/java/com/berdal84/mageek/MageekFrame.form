@@ -493,13 +493,9 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="batchCheckBox">
           <Properties>
-            <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Batch Mode"/>
             <Property name="toolTipText" type="java.lang.String" value="Enable by default, will process the images in background (faster)."/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="batchCheckBoxActionPerformed"/>
-          </Events>
         </Component>
       </SubComponents>
     </Container>

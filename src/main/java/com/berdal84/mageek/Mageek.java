@@ -197,12 +197,13 @@ public class Mageek<T extends RealType<T>>  implements Command
         gui.setAvailableZProjection(ZProjector.METHODS);
         gui.setZProjection(ZProjector.METHODS[ZProjector.AVG_METHOD]);
         gui.setVisible(true);
-        gui.setAlwaysOnTop(false);        
+        gui.setAlwaysOnTop(false);
+        gui.setBatchMode(batchMode);
         
         gui.addBrowseBtnListener((ActionEvent evt)->
         {
                 gui.setStatus("Browsing folder ...");
-
+                gui.setProgress(0);
                 askSourceDirectoryToUser();
 
                 if (sourceFolder != null)
@@ -213,8 +214,6 @@ public class Mageek<T extends RealType<T>>  implements Command
                                     sourceFolder.toString()
                             )
                     );
-                    gui.setProgress(10);
-
                     gui.setSourceDirectory(sourceFolder.toString());
 
                     scannedFiles = FileHelper.getFiles(sourceFolder, true);
@@ -226,7 +225,6 @@ public class Mageek<T extends RealType<T>>  implements Command
                 else
                 {
                     gui.setStatus("Browsing aborted.");
-                    gui.setProgress(0);
                     gui.clearFileList();
                 }
         });
@@ -335,7 +333,15 @@ public class Mageek<T extends RealType<T>>  implements Command
             
             if ( !presetName.equals("Custom") )
             {
-                gui.setColorPreset( colorPresets.get(presetName), true);  
+                MColorPreset presetSelected = colorPresets.get(presetName);
+                gui.setColorPreset( presetSelected, true);
+                
+                // We choose a unique event for color item selection changed
+                // We need to update the selectedColorPreset entirely
+                for( int i=0; i < 4; i++ )
+                {
+                    selectedColors.setMetaColorAt(i, presetSelected.getMetaColorAt(i) );
+                }
             }
         });
         
@@ -418,6 +424,10 @@ public class Mageek<T extends RealType<T>>  implements Command
                             int channel = 0;
                             for (ImagePlus channelImg : allChannels)
                             {
+                                if( !batchMode )
+                                {
+                                    channelImg.show();
+                                }
                                 
                                 if ( channelImg.getNSlices() > 1 )
                                 {
@@ -440,9 +450,23 @@ public class Mageek<T extends RealType<T>>  implements Command
                                 );
 
                                 ImagePlus out = new ImagePlus("out", p.createImage());
+                                
+                                if( !batchMode )
+                                {
+                                    channelImg.close();
+                                    out.show();
+                                }
+                                
                                 FileSaver saver = new FileSaver(out);
                                 saver.saveAsTiff(outputPath);
                                 channel++;
+                                
+                                                                
+                                if( !batchMode )
+                                {
+                                    out.close();
+                                    
+                                }
                             }
                             serie++;
                         }
@@ -462,31 +486,6 @@ public class Mageek<T extends RealType<T>>  implements Command
             }
 
             gui.setStatus("Processing DONE");
-            
-           if ( !batchMode && !allImages.isEmpty() )
-           {
-               DialogPrompt.Result response =
-                    ui.showDialog(
-                        "Would you like to open the images?",
-                        MessageType.QUESTION_MESSAGE,
-                        OptionType.YES_NO_OPTION
-                   );
-               
-               if( response.equals( DialogPrompt.Result.YES_OPTION ) )
-               {
-                   allImages.forEach( (ImagePlus[] imgs )->
-                   {
-                       for(ImagePlus img : imgs )
-                       {
-                           img.show();
-                       }
-                   });
-               }
-           }
-           else
-           {
-               gui.setStatus("No images were loaded :(");
-           }
         }
         else
         {
