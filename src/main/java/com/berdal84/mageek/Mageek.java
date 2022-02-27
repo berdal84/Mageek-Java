@@ -8,16 +8,10 @@
 package com.berdal84.mageek;
 
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Macro;
 import ij.io.FileSaver;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.ZProjector;
-import ij.process.ByteProcessor;
-import ij.process.ColorProcessor;
-import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
 import io.scif.services.DatasetIOService;
@@ -34,21 +28,15 @@ import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
-import io.scif.services.DefaultDatasetIOService;
-import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -56,41 +44,28 @@ import java.util.logging.Logger;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import loci.formats.FormatException;
-import net.imagej.DefaultImgPlusService;
-
-import loci.plugins.BF;
-import loci.plugins.LociImporter;
 import loci.plugins.in.DisplayHandler;
 import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
 import loci.plugins.in.ImporterOptions;
-import static loci.plugins.in.ImporterOptions.VIEW_HYPERSTACK;
 import loci.plugins.in.ImporterPrompter;
-import loci.plugins.util.LibraryChecker;
 import net.imagej.DatasetService;
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.img.display.imagej.ImageJFunctions;
-import net.imglib2.test.ImgLib2Assert;
-import org.scijava.plugin.PluginInfo;
-import org.scijava.plugin.SciJavaPlugin;
 
 /**
  * Mageek2 is the Java version of Mageek.ijm macro
  *
- * This plugin allows to process files by selecting a source directory. The
- * process will: - scan recursively the folder - display a scan result to let
- * the user to choose which file extension to process, and which colors to use,
- * - importing each file's series, - splitting each series's channel, - applying
- * a Z projection (to combine all slices), - colorize each channel, - save
- * result to a "ANALYZED" folder.
+ * This plugin allows to process files by selecting a source directory.The
+ process will: - scan recursively the folder - display a scan result to let
+ the user to choose which file extension to process, and which colors to use,
+ - importing each file's series, - splitting each series's channel, - applying
+ a Z projection (to combine all slices), - colorize each channel, - save
+ result to a "ANALYZED" folder.
+ * @param <T>
  */
 @Plugin(type = Command.class, menuPath = "Plugins>Mageek")
 public class Mageek<T extends RealType<T>>  implements Command
 {
-    @Parameter
-    private RunService run;
-    
+   
     @Parameter
     private UIService ui;
 
@@ -397,6 +372,8 @@ public class Mageek<T extends RealType<T>>  implements Command
     /**
      * Launch the process over filtered files.
      *
+     * TODO: create a separate Plugin able to run in parallel. UI is stuck while processing currently.
+     * 
      * Each file will be processed one by one, result will be saved to
      * destinationDirectory.
      */
@@ -542,6 +519,10 @@ public class Mageek<T extends RealType<T>>  implements Command
         }
     }
     
+    /**
+     * Create the output directory, or if exists ask user to empty it or to abort.
+     * @return 
+     */
     private boolean createOutputDirectory()
     {
         boolean success;
@@ -622,97 +603,7 @@ public class Mageek<T extends RealType<T>>  implements Command
 
         gui.setStatus(message);
     }
-
-    /**
-     * Stop Mageek.
-     *
-     * Main dialog will be closed.
-     */
-    private void stop()
-    {
-        gui.setVisible(false);
-        gui.dispose();
-    }
     
-    private void colorizeFile(File _output, MColor[] _colorForChannel, int channels, int slices, int frames )
-    {	
-//	log.info("Colorize... ", _outputFileName , "[ ", channels, " channel(s), ", slices, " slice(s), ", frames, " frame(s) ]");	
-//	existingFileCount = nImages();
-//	channelToProcessCount = channels;	
-//	// in some cases we could have more channels than colors, so we skip the channels without color
-//	if ( channelToProcessCount  > _colorForChannel.length ) {
-//		channelToProcessCount = _colorForChannel.length;
-//	}
-//
-//	// Stack.setDisplayMode("color");
-//
-//	// Colorize each channels using specified color (_colorForChannel is an Array of strings)
-//
-//	for( i=0; i < channelToProcessCount; i++)
-//        {
-//            if( channelToProcessCount > 1 ) { 
-//                    Stack.setChannel(i+1);
-//            }
-//            colorScriptName = _colorForChannel[i];
-//            print("Colorizing channel ", i+1, " as ", colorScriptName, "...");
-//            run(colorScriptName);
-//	}
-//
-//	if( frames > 1 || slices > 1)
-//        { 
-//            if (zProjUserChoice != Z_PROJECT_NONE ){
-//                    run("Z Project...", "projection=["+ zProjUserChoice +"]");	
-//            }
-//            selectImage(existingFileCount);
-//            close();
-//	}
-//	
-//	// Split channels if needed
-//	if ( channelToProcessCount > 1 )
-//        {
-//            run("Split Channels");
-//	}	
-//	
-//	// Rename the channel(s) image(s)
-//	for( i=0; i < channelToProcessCount; i++)
-//        {
-//            selectImage(existingFileCount+i);
-//            rename(_colorForChannel[i]);
-//	}
-//
-//	/** Merge channel is disabled for now...
-//	options = "";
-//	for( i=0; i < channelToProcessCount; i++) {
-//		options = options + "c"+(i+1)+"=" + _colorForChannel[i] + " ";
-//	}
-//	run("Merge Channels...", options + "keep");
-//	*/
-//	
-//	// Save each image
-//	for( i=0; i < channelToProcessCount; i++)
-//        {
-//            selectWindow(_colorForChannel[i]);
-//            run("RGB Color");
-//            saveAs("Tiff", _outputFileName + "_color_" + _colorForChannel[i] + ".tif");
-//	}
-//
-//	// Create a Montage with colored channels (only if we have more than one channel)
-//	if ( channelToProcessCount > 1 )
-//        {
-//            run("Images to Stack", "name=name title=[] use keep");
-//            run("Make Montage...", "columns=" + channelToProcessCount + " rows=1 scale=0.5 first=1 last="+ channelToProcessCount +" increment=1 border=1 font=12");
-//            saveAs("Tiff", _outputFileName + "_Montage.tif");
-//	}
-//
-//	// Close opened images
-//	while (nImages() > existingFileCount )
-//        { 		
-//            selectImage(nImages); 
-//            close(); 
-//	}
-
-    }
-
     private ImagePlus[] open(File file) throws IOException, FormatException   
     {
   

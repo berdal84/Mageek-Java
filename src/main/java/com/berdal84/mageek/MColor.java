@@ -27,38 +27,40 @@ import ij.plugin.Colors;
 import java.awt.Color;
 
 /**
- *
- * @author berenger
+ * Meta object to store a color from ij (String) and java Color) point of views.
  */
 public final class MColor
 {
+
     private final String ijColorString;
     private final Color color;
 
     private MColor(String _ijColorString, Color _color)
     {
         this.ijColorString = _ijColorString;
-        this.color         = _color;
+        this.color = _color;
     }
 
     /**
      * Get ImageJ color as String
-     * @return 
+     *
+     * @return
      */
     public String getIJColorString()
     {
         return ijColorString;
     }
-        
+
     /**
      * Get underlying java.awt.Color Object
-     * @return 
+     *
+     * @return
      */
     public Color getColor()
     {
         return color;
     }
-    
+
     @Override
     public String toString()
     {
@@ -71,25 +73,30 @@ public final class MColor
         MColor result = color == null ? null : new MColor(_ijColorString, color);
         return result;
     }
-    
+
+    /**
+     * Get an existing MColor from a ImageJ color string
+     * @param _ijColorString
+     * @return 
+     */
     public static MColor getWithIJString(String _ijColorString)
     {
-        for( MColor each : All )
+        for (MColor each : All)
         {
-            if ( each.ijColorString.equals( _ijColorString ))
+            if (each.ijColorString.equals(_ijColorString))
             {
                 return each;
             }
         }
-        return null;
+        return MColor.Null;
     }
 
-    public static MColor Null     = new MColor("None", Color.BLACK);
-    public static MColor Red      = createFromIJColorString("Red");
-    public static MColor Green    = createFromIJColorString("Green");
-    public static MColor Blue     = createFromIJColorString("Blue");
-    public static MColor Magenta  = createFromIJColorString("Magenta");
-    
+    public static MColor Null = new MColor("None", Color.BLACK);
+    public static MColor Red = createFromIJColorString("Red");
+    public static MColor Green = createFromIJColorString("Green");
+    public static MColor Blue = createFromIJColorString("Blue");
+    public static MColor Magenta = createFromIJColorString("Magenta");
+
     public static MColor[] All =
     {
         MColor.Red,

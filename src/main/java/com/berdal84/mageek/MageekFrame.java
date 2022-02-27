@@ -42,8 +42,7 @@ import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 
 /**
- *
- * @author berenger
+ * Main GUI for Mageek
  */
 public class MageekFrame extends javax.swing.JFrame
 {
@@ -562,9 +561,9 @@ public class MageekFrame extends javax.swing.JFrame
     void setAvailableZProjection(String[] _projections)
     {
         zProjectionComboBox.removeAllItems();
-        for( String eachColor : _projections)
+        for( String each : _projections)
         {
-            zProjectionComboBox.addItem(eachColor.toString());
+            zProjectionComboBox.addItem(each);
         }
     }
     

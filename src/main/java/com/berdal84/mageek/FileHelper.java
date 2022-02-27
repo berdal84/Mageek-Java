@@ -25,52 +25,52 @@ package com.berdal84.mageek;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 
 /**
- *
- * @author berenger
+ * Some File relative functions used in Mageek
  */
 public class FileHelper
 {
 
     public static String getFormattedExtension(File _file)
     {
-        return formatExtension( FilenameUtils.getExtension(_file.getName()) );
+        return formatExtension(FilenameUtils.getExtension(_file.getName()));
     }
-    
+
     public static String formatExtension(String _extension)
     {
         return String.format("*.%s", _extension);
     }
-    
+
     /**
      * Get file extensions from a file list.
+     *
      * @param _files
-     * @return 
+     * @return
      */
     public static ArrayList<String> getFileExtensions(ArrayList<File> _files)
     {
         ArrayList<String> result = new ArrayList();
 
-        _files.forEach((File _eachFile)->
+        _files.forEach((File _eachFile) ->
         {
             String extension = getFormattedExtension(_eachFile);
-            if ( extension != null && !result.contains(extension) )
-            {                
-                result.add( extension );
+            if (extension != null && !result.contains(extension))
+            {
+                result.add(extension);
             }
         });
 
         return result;
     }
-    
+
     /**
      * Get files from a directory recursively or not
+     *
      * @param _directory
      * @param _recursively
-     * @return 
+     * @return
      */
     public static ArrayList<File> getFiles(File _directory, boolean _recursively)
     {
@@ -81,13 +81,13 @@ public class FileHelper
         {
             for (File file : content)
             {
-                if (file.isDirectory() )
+                if (file.isDirectory())
                 {
-                    if ( _recursively )
+                    if (_recursively)
                     {
                         ArrayList<File> subFolderFiles = getFiles(file, true);
-                        result.addAll( subFolderFiles );
-                    }                        
+                        result.addAll(subFolderFiles);
+                    }
                 }
                 else
                 {
@@ -99,7 +99,7 @@ public class FileHelper
 
         return result;
     }
-    
+
     /**
      * Delete a folder and its content recursively
      *
@@ -129,7 +129,7 @@ public class FileHelper
 
             }
         }
-        
+
         if (_self)
         {
             _directory.delete();
