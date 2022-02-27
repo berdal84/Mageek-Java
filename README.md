@@ -69,3 +69,10 @@ Once done, you must find a new directory in your source directory named `ANALYSE
 
 ![Screen Shot 2022-02-27 at 4 15 23 PM](https://user-images.githubusercontent.com/942052/155900213-f31e0918-8870-4cf1-9d72-aa332a35e709.png)
 
+## Credits
+
+The source code of Mageek has been developped by [Berenger Dalle-Cort](https://www.dalle-cort.fr) with discussions with [Marcela Garita Hernandez](https://www.linkedin.com/in/marcela-garita-hernandez-pharmd-phd-ba1a2830/) in order to speed-up microscope image analysis process.
+
+## History
+
+This Java code is the version 2 of a previous ImageJ Macro. Source code of this version is [here](https://github.com/berdal84/mageek).
