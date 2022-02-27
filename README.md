@@ -18,12 +18,10 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 # How to use ?
 
-- Download `Mageek-<version>.zip` last release from [here](https://github.com/berdal84/Mageek-Java/releases/latest).
-
-![Screen Shot 2022-02-27 at 3 58 36 PM](https://user-images.githubusercontent.com/942052/155899674-0f95e7df-c55f-47cf-92a1-e0a911a43448.png)
-
+- Download `Mageek.zip` last release from the assets [here](https://github.com/berdal84/Mageek-Java/releases/latest).
+ 
 - Unzip the downloaded file.
-
+ 
 - Download and install Fiji from https://imagej.net/Fiji/Downloads
 
 - Run Fiji
@@ -34,11 +32,13 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 ![Screen Shot 2022-02-27 at 4 06 54 PM](https://user-images.githubusercontent.com/942052/155899968-aee88932-9e1d-4443-8505-cc356c034b34.png)
 
+- Fiji must be restarted in order to take the plugin in account.
+
 ![Screen Shot 2022-02-27 at 4 07 22 PM](https://user-images.githubusercontent.com/942052/155899978-e34ee811-dbca-4695-a4e9-e5994225a79a.png)
 
-- Restart Fiji. Search for `Mageek`, you should find it quickly.
+- Search for `Mageek`, you should find it quickly.
 
-![Screen Shot 2022-02-27 at 3 57 01 PM](https://user-images.githubusercontent.com/942052/155899613-81d87b95-91cc-48de-aaa9-789e15dfc3db.png)
+![Screen Shot 2022-02-27 at 4 17 47 PM](https://user-images.githubusercontent.com/942052/155900275-4353bac0-4c32-4192-8932-747688042815.png)
 
 - Validate by hitting `Enter` or clicking `Run`.
 
@@ -53,11 +53,11 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 ![Screen Shot 2022-02-27 at 4 11 06 PM](https://user-images.githubusercontent.com/942052/155900095-827a3093-5fde-48f9-a6b9-3f7722ab1767.png)
 
-Select the Z projection mode to apply on slices and the colors to apply to each channels.
+- Select the Z projection mode to apply on slices and the colors to apply to each channels.
 
 ![Screen Shot 2022-02-27 at 4 12 04 PM](https://user-images.githubusercontent.com/942052/155900130-db4da1e8-f291-44e3-9565-2932edb87e95.png)
 
-When you are ready, click on `Process` button.
+- When you are ready, click on `Process` button.
 
 ![Screen Shot 2022-02-27 at 4 12 36 PM](https://user-images.githubusercontent.com/942052/155900142-9a889832-f2b7-4025-aecd-7c742c15b708.png)
 
