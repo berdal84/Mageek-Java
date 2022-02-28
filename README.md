@@ -59,9 +59,7 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 ![Screen Shot 2022-02-27 at 4 12 36 PM](https://user-images.githubusercontent.com/942052/155900142-9a889832-f2b7-4025-aecd-7c742c15b708.png)
 
-*Note: process has no progress feedback, we will improve this in the future.*
-
-Once done, you must find a new directory in your source directory named `ANALYSED`:
+- You will see status messages and progress bar growing... Once done, you must find a new directory in your source directory named `ANALYSED`:
 
 ![Screen Shot 2022-02-27 at 4 14 24 PM](https://user-images.githubusercontent.com/942052/155900195-0b4d24be-0ce9-46f7-9cfc-251765bed217.png)
 
