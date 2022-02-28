@@ -14,7 +14,7 @@
 
     <groupId>com.berdal84</groupId>
     <artifactId>Mageek</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <name>Mageek</name>
     <description>A small plugin to colorize images channels, works with multi series/channels/slices.</description>

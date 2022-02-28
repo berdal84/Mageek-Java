@@ -23,6 +23,7 @@
  */
 package com.berdal84.mageek;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
@@ -79,7 +80,6 @@ public class GUI extends javax.swing.JFrame
         cancelBtn = new javax.swing.JButton();
         processBtn = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
-        statusLabel = new javax.swing.JLabel();
         srcDirPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 30), new java.awt.Dimension(10, 30), new java.awt.Dimension(32767, 30));
@@ -109,6 +109,12 @@ public class GUI extends javax.swing.JFrame
         color4ComboBox = new javax.swing.JComboBox<>();
         batchCheckBox = new javax.swing.JCheckBox();
         jLabel10 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane1.setBackground(new Color(0,0,0,0));
+        statusLabel = new javax.swing.JTextArea();
+        statusLabel.setOpaque(false);
+        Color bgColor = new Color( 0, 0, 0, 0);
+        statusLabel.setBackground(bgColor);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -129,10 +135,6 @@ public class GUI extends javax.swing.JFrame
 
         progressBar.setStringPainted(true);
         processPanel.add(progressBar);
-
-        statusLabel.setBackground(new java.awt.Color(153, 153, 153));
-        statusLabel.setFont(new java.awt.Font("Lucida Grande", 2, 13)); // NOI18N
-        statusLabel.setText("Status: Please select a source folder");
 
         srcDirPanel.setLayout(new javax.swing.BoxLayout(srcDirPanel, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -199,7 +201,7 @@ public class GUI extends javax.swing.JFrame
             .addGroup(extensionsPanelLayout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))
+                .addComponent(jScrollPane4))
         );
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
@@ -287,10 +289,30 @@ public class GUI extends javax.swing.JFrame
                     .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(batchCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 7, Short.MAX_VALUE))
         );
 
         jLabel10.setText("Options:");
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 102, 0));
+        jScrollPane1.setBorder(null);
+        jScrollPane1.setForeground(new java.awt.Color(204, 255, 0));
+        jScrollPane1.setOpaque(false);
+
+        statusLabel.setEditable(false);
+        statusLabel.setBackground(javax.swing.UIManager.getDefaults().getColor("window"));
+        statusLabel.setColumns(20);
+        statusLabel.setFont(new java.awt.Font("Lucida Grande", 2, 13)); // NOI18N
+        statusLabel.setForeground(new java.awt.Color(102, 102, 102));
+        statusLabel.setLineWrap(true);
+        statusLabel.setRows(2);
+        statusLabel.setTabSize(4);
+        statusLabel.setText("Status: here will be the status.\nCan use two lines.");
+        statusLabel.setToolTipText("");
+        statusLabel.setWrapStyleWord(true);
+        statusLabel.setBorder(null);
+        statusLabel.setDragEnabled(false);
+        jScrollPane1.setViewportView(statusLabel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -305,8 +327,7 @@ public class GUI extends javax.swing.JFrame
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(srcDirPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)
-                            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(srcDirPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 891, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(extensionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -315,7 +336,8 @@ public class GUI extends javax.swing.JFrame
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(colorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel10)
-                                    .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))))
+                                    .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                            .addComponent(jScrollPane1))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -328,19 +350,17 @@ public class GUI extends javax.swing.JFrame
                 .addComponent(srcDirPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(extensionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(fileListPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(7, 7, 7))
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(colorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(colorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addComponent(statusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(processPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(extensionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(fileListPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
@@ -379,6 +399,7 @@ public class GUI extends javax.swing.JFrame
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -387,7 +408,7 @@ public class GUI extends javax.swing.JFrame
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JTextField sourceDirectoryTextEdit;
     private javax.swing.JPanel srcDirPanel;
-    private javax.swing.JLabel statusLabel;
+    private javax.swing.JTextArea statusLabel;
     private javax.swing.JComboBox<String> zProjectionComboBox;
     private javax.swing.JLabel zProjectionLabel;
     // End of variables declaration//GEN-END:variables
