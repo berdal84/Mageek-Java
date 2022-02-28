@@ -129,6 +129,8 @@ public class Mageek<T extends RealType<T>>  implements Command
 
     private final Map<String, MColorPreset> colorPresets;
     
+    private Thread currentProcessThread;
+    
      /**
      * This main function serves for development purposes. It allows you to run
      * the plugin immediately out of your integrated development environment
@@ -147,6 +149,7 @@ public class Mageek<T extends RealType<T>>  implements Command
     
     public Mageek()
     {
+        currentProcessThread = null;
         title   = "Mageek";
         version = "1.0.0";
         batchMode = true;
@@ -185,21 +188,7 @@ public class Mageek<T extends RealType<T>>  implements Command
         gui = new MageekFrame(ui.context());
         
         gui.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        gui.setStatus(String.format("Welcome to %s v%s", title, version));
-        gui.setSourceDirectory("Select a source directory ...");
 
-        gui.setAvailableColors(MColor.All);      
-
-        ArrayList presets = new ArrayList(colorPresets.values());
-        gui.setAvailableColorPresets(presets);
-        gui.setColorPreset(selectedColors, true);
-        
-        gui.setAvailableZProjection(ZProjector.METHODS);
-        gui.setZProjection(ZProjector.METHODS[ZProjector.AVG_METHOD]);
-        gui.setVisible(true);
-        gui.setAlwaysOnTop(false);
-        gui.setBatchMode(batchMode);
-        
         gui.addBrowseBtnListener((ActionEvent evt)->
         {
                 gui.setStatus("Browsing folder ...");
@@ -236,9 +225,6 @@ public class Mageek<T extends RealType<T>>  implements Command
             if ( createOutputDirectory() )
             {
                 processFiles();
-                gui.setStatus("Processing DONE");
-                gui.setProgress(100);
-                displayStatisticsInStatusBar();
             }
             else
             {
@@ -349,6 +335,38 @@ public class Mageek<T extends RealType<T>>  implements Command
         {            
             batchMode = (boolean)e.getNewValue();
         });
+        
+        gui.addCancelBtnListener((ActionEvent e) ->
+        {            
+            if( currentProcessThread != null )
+            {                
+                try
+                {
+                    currentProcessThread.interrupt();
+                    currentProcessThread.join();
+                    gui.setStatus("Process canceled");
+                }
+                catch (InterruptedException ex)
+                {
+                    Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        
+        gui.setStatus(String.format("Welcome to %s v%s", title, version));
+        gui.setSourceDirectory("Select a source directory ...");
+
+        gui.setAvailableColors(MColor.All);      
+
+        ArrayList presets = new ArrayList(colorPresets.values());
+        gui.setAvailableColorPresets(presets);
+        gui.setColorPreset(selectedColors, true);
+        
+        gui.setAvailableZProjection(ZProjector.METHODS);
+        gui.setZProjection(ZProjector.METHODS[ZProjector.AVG_METHOD]);
+        gui.setVisible(true);
+        gui.setAlwaysOnTop(false);
+        gui.setBatchMode(batchMode);
     }
 
     /**
@@ -385,107 +403,39 @@ public class Mageek<T extends RealType<T>>  implements Command
      */
     private void processFiles()
     {
-        
-        final ArrayList<ImagePlus[]> allImages = new ArrayList<>();
         gui.setProgress(0);
         
         if (sourceFolder != null)
         {
-            log.log(
-                    LogLevel.INFO,
-                    String.format(
-                            "Processing folder %s ...",
-                            sourceFolder.getAbsolutePath()
-                    )
+            // TODO: use ImageJ2 proper mechanism
+            Process p = new Process();
+            p.setup(
+                filteredFiles,
+                destinationFolder,
+                batchMode,
+                projectorMethod,
+                selectedColors,
+                log
             );
             
-            processedFiles.clear();
-            ignoredFiles.clear();
-           
-            for (File file : filteredFiles)
+            currentProcessThread  = new Thread(p);
+            
+            p.setListener( new Process.Listener()
             {
-                try
+                @Override
+                public void onProgressChange(int _progress)
                 {
-                    gui.setStatus(String.format("Processing file %s ...", file.toPath()));
-                    ImagePlus[] allSeries = open(file);
-
-                    // In case we have zero images, we skip.
-                    if  ( allSeries.length > 0 )
-                    {
-                       allImages.add(allSeries); 
-                       
-                       // At this step, each image is a serie (@see open(File) method)
-                       int serie = 0;
-                       for(ImagePlus serieImg : allSeries )
-                        {
-                            ImagePlus[] allChannels = ChannelSplitter.split(serieImg);
-                            
-                            // At this step, each image is a channel.
-                            int channel = 0;
-                            for (ImagePlus channelImg : allChannels)
-                            {
-                                if( !batchMode )
-                                {
-                                    channelImg.show();
-                                }
-                                
-                                if ( channelImg.getNSlices() > 1 )
-                                {
-                                    channelImg = ij.plugin.ZProjector.run(channelImg, projectorMethod );
-                                }                                
-                                
-                                ImageProcessor p     = channelImg.getProcessor();                                
-                                java.awt.Color color = selectedColors.getColorAt(channel);
-                                
-                                LUT lut = LUT.createLutFromColor(color);
-                                p.setLut(lut);
-
-                                String outputPath = String.format(
-                                        "%s%s%s_serie_%d_channel_%d.tiff",
-                                        destinationFolder.getAbsolutePath(),
-                                        File.separator,
-                                        file.getName(),
-                                        serie,
-                                        channel
-                                );
-
-                                ImagePlus out = new ImagePlus("out", p.createImage());
-                                
-                                if( !batchMode )
-                                {
-                                    channelImg.close();
-                                    out.show();
-                                }
-                                
-                                FileSaver saver = new FileSaver(out);
-                                saver.saveAsTiff(outputPath);
-                                channel++;
-                                
-                                                                
-                                if( !batchMode )
-                                {
-                                    out.close();
-                                    
-                                }
-                            }
-                            serie++;
-                        }
-
-                    }                    
-                    gui.setStatus( String.format("File %s processed.", file.toPath()));
+                    gui.setProgress( _progress );
                 }
-                catch (Exception ex)
+
+                @Override
+                public void onStatusChange(String _status)
                 {
-                    ignoredFiles.add(file);
-                    Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                    gui.setStatus(_status);
                 }
-                processedFiles.add(file);
-
-                gui.setProgress( processedFiles.size() / filteredFiles.size() * 100);
-                gui.repaint();
-            }
-
-            gui.setStatus("Processing DONE");
+            });            
+            
+            currentProcessThread.start();
         }
         else
         {

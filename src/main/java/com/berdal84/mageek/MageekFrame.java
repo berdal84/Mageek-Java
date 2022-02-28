@@ -418,7 +418,12 @@ public class MageekFrame extends javax.swing.JFrame
     { 
         batchCheckBox.addPropertyChangeListener(listener);
     }
-        
+   
+    public void addCancelBtnListener(ActionListener listener)
+    { 
+        cancelBtn.addActionListener(listener);
+    }
+            
     public void addFileExtSelectionListener(ListSelectionListener listener)
     { 
         extensionList.addListSelectionListener(listener);
