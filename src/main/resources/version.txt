@@ -1,0 +1,2 @@
+${project.version}
+// do not modify the first line

@@ -243,8 +243,14 @@ public class Process<T extends RealType<T>>  implements Command
 
             setProgress( (int)(((float)processedFiles.size() / (float)files.size()) * 100.f) );
         }
-
-        setStatus("Processing DONE");
+        
+        String message = String.format(
+                "Process done, %d file(s) processed (%d ignored)"
+                + " --- Hasta la vista, baby. ^^",
+                processedFiles.size(),
+                ignoredFiles.size()
+        );
+        setStatus(message);    
     }
 
     /**
@@ -299,4 +305,5 @@ public class Process<T extends RealType<T>>  implements Command
     {
         listener = _listener;
     }
+    
 }

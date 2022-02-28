@@ -72,7 +72,7 @@ public class FileHelper
      * @param _recursively
      * @return
      */
-    public static ArrayList<File> getFiles(File _directory, boolean _recursively)
+    public static ArrayList<File> getFiles(File _directory, boolean _recursively, String _ignoreFolderName)
     {
         ArrayList<File> result = new ArrayList<>();
         File[] content = _directory.listFiles();
@@ -81,11 +81,11 @@ public class FileHelper
         {
             for (File file : content)
             {
-                if (file.isDirectory())
+                if (file.isDirectory() && !file.getName().equals(_ignoreFolderName) )
                 {
                     if (_recursively)
                     {
-                        ArrayList<File> subFolderFiles = getFiles(file, true);
+                        ArrayList<File> subFolderFiles = getFiles(file, true, _ignoreFolderName);
                         result.addAll(subFolderFiles);
                     }
                 }

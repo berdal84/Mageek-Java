@@ -14,13 +14,11 @@ import ij.plugin.ZProjector;
 import io.scif.services.DatasetIOService;
 
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 
 import net.imglib2.type.numeric.RealType;
 
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
-import org.scijava.run.RunService;
 import org.scijava.ui.DialogPrompt.MessageType;
 import org.scijava.ui.DialogPrompt.OptionType;
 import org.scijava.ui.DialogPrompt;
@@ -86,9 +84,6 @@ public class Plugin<T extends RealType<T>>  implements Command
     /* The script title */
     private final String title;
 
-    /* The script title */
-    private final String version;
-
     /* Scanned extensions */
     private ArrayList<String> scannedFileExtensions;
 
@@ -128,7 +123,6 @@ public class Plugin<T extends RealType<T>>  implements Command
     {
         currentProcessThread = null;
         title   = "Mageek";
-        version = "1.0.0";
         batchMode = true;
         analysedFolderName = "ANALYSED";
         scannedFileExtensions = new ArrayList<>();
@@ -182,7 +176,7 @@ public class Plugin<T extends RealType<T>>  implements Command
                     );
                     gui.setSourceDirectory(sourceFolder.toString());
 
-                    scannedFiles = FileHelper.getFiles(sourceFolder, true);
+                    scannedFiles = FileHelper.getFiles(sourceFolder, true, analysedFolderName);
                     gui.setFileList(scannedFiles);
                     scannedFileExtensions = FileHelper.getFileExtensions(scannedFiles);
                     gui.setFileExtensionList(scannedFileExtensions);
@@ -340,7 +334,7 @@ public class Plugin<T extends RealType<T>>  implements Command
             }
         });
         
-        gui.setStatus(String.format("Welcome to %s v%s", title, version));
+        gui.setStatus(String.format("Welcome to %s v%s", title, PackageHelper.getVersion() ));
         gui.setSourceDirectory("Select a source directory ...");
 
         gui.setAvailableColors(MetaColor.All);      
@@ -506,39 +500,6 @@ public class Plugin<T extends RealType<T>>  implements Command
             success = true;
         }
         return success;
-    }
-
-    /**
-     * Update the statistics in status bar
-     */
-    void displayStatisticsInStatusBar()
-    {
-        String innerMessage;
-
-        MessageType messageType;
-
-        if (this.sourceFolder == null)
-        {
-            innerMessage = "Nothing to process ...";
-            messageType = MessageType.INFORMATION_MESSAGE;
-        }
-        else
-        {
-            innerMessage = String.format(
-                    "Process done, %d file(s) processed (%d ignored)",
-                    processedFiles.size(),
-                    ignoredFiles.size()
-            );
-
-            messageType = MessageType.INFORMATION_MESSAGE;
-        }
-
-        String message = String.format(
-                "%s --- Hasta la vista, baby. ^^",
-                innerMessage
-        );
-
-        gui.setStatus(message);
     }
     
     private ImagePlus[] open(File file) throws IOException, FormatException   
