@@ -9,17 +9,17 @@ package com.berdal84.mageek;
 
 
 import ij.ImagePlus;
-import ij.io.FileSaver;
-import ij.plugin.ChannelSplitter;
 import ij.plugin.ZProjector;
-import ij.process.ImageProcessor;
-import ij.process.LUT;
+
 import io.scif.services.DatasetIOService;
+
+import net.imagej.DatasetService;
 import net.imagej.ImageJ;
+
 import net.imglib2.type.numeric.RealType;
+
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 import org.scijava.run.RunService;
 import org.scijava.ui.DialogPrompt.MessageType;
 import org.scijava.ui.DialogPrompt.OptionType;
@@ -28,11 +28,11 @@ import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 import org.scijava.log.LogLevel;
 import org.scijava.log.LogService;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,27 +44,19 @@ import java.util.logging.Logger;
 import javax.swing.AbstractButton;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
+
 import loci.formats.FormatException;
 import loci.plugins.in.DisplayHandler;
 import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
 import loci.plugins.in.ImporterOptions;
 import loci.plugins.in.ImporterPrompter;
-import net.imagej.DatasetService;
 
 /**
- * Mageek2 is the Java version of Mageek.ijm macro
- *
- * This plugin allows to process files by selecting a source directory.The
- process will: - scan recursively the folder - display a scan result to let
- the user to choose which file extension to process, and which colors to use,
- - importing each file's series, - splitting each series's channel, - applying
- a Z projection (to combine all slices), - colorize each channel, - save
- result to a "ANALYZED" folder.
- * @param <T>
+ * Mageek Plugin is the Java version of Mageek.ijm macro
  */
-@Plugin(type = Command.class, menuPath = "Plugins>Mageek")
-public class Mageek<T extends RealType<T>>  implements Command
+@org.scijava.plugin.Plugin(type = Command.class, menuPath = "Plugins>Mageek")
+public class Plugin<T extends RealType<T>>  implements Command
 {
    
     @Parameter
@@ -113,10 +105,10 @@ public class Mageek<T extends RealType<T>>  implements Command
     private final ArrayList<File> processedFiles;
 
     /* The main UI */
-    private MageekFrame gui;
+    private GUI gui;
     
     /* The current color preset */
-    private MColorPreset selectedColors;
+    private ColorPreset selectedColors;
 
     private final String[] SELECTED_EXTENSIONS_DEFAULT =  // TODO: convert to enum
     {
@@ -128,27 +120,11 @@ public class Mageek<T extends RealType<T>>  implements Command
     /** a value from ZProjector.METHODS array */
     private String projectorMethod;
 
-    private final Map<String, MColorPreset> colorPresets;
+    private final Map<String, ColorPreset> colorPresets;
     
     private Thread currentProcessThread;
     
-     /**
-     * This main function serves for development purposes. It allows you to run
-     * the plugin immediately out of your integrated development environment
-     * (IDE).
-     *
-     * @param args whatever, it's ignored
-     * @throws Exception
-     */
-    public static void main(final String... args) throws Exception
-    {
-        // create the ImageJ application context with all available services
-        final ImageJ ij = new ImageJ();
-        ij.ui().showUI();
-        ij.command().run(Mageek.class, false);
-    }
-    
-    public Mageek()
+    public Plugin()
     {
         currentProcessThread = null;
         title   = "Mageek";
@@ -164,21 +140,21 @@ public class Mageek<T extends RealType<T>>  implements Command
         
         colorPresets = new HashMap();
         {
-            MColorPreset preset = new MColorPreset("Confocal", MColor.Blue , MColor.Red, MColor.Green, MColor.Magenta );
+            ColorPreset preset = new ColorPreset("Confocal", MetaColor.Blue , MetaColor.Red, MetaColor.Green, MetaColor.Magenta );
             colorPresets.put(preset.getName(), preset);
         }
 
         {
-            MColorPreset preset = new MColorPreset("Legacy", MColor.Blue, MColor.Green, MColor.Red, MColor.Magenta );
+            ColorPreset preset = new ColorPreset("Legacy", MetaColor.Blue, MetaColor.Green, MetaColor.Red, MetaColor.Magenta );
             colorPresets.put(preset.getName(), preset);
         }
         
         {
-            MColorPreset preset = new MColorPreset("Custom", MColor.Null , MColor.Null, MColor.Null, MColor.Null );
+            ColorPreset preset = new ColorPreset("Custom", MetaColor.Null , MetaColor.Null, MetaColor.Null, MetaColor.Null );
             colorPresets.put(preset.getName(), preset);
         }        
                
-        selectedColors = new MColorPreset( colorPresets.get("Confocal") );
+        selectedColors = new ColorPreset( colorPresets.get("Confocal") );
     }
     
     @Override
@@ -186,7 +162,7 @@ public class Mageek<T extends RealType<T>>  implements Command
     {
         log.log(LogLevel.INFO, String.format("Running %s ...", title));
 
-        gui = new MageekFrame(ui.context());
+        gui = new GUI(ui.context());
         
         gui.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -301,7 +277,7 @@ public class Mageek<T extends RealType<T>>  implements Command
             //colorPreset.setIJColorStringAt(0)
             if( colorPresets.containsKey(presetName))
             {
-                MColorPreset preset = colorPresets.get(presetName);
+                ColorPreset preset = colorPresets.get(presetName);
                
                 if (!preset.getIJColorStringAt(0).equals(gui.getSelectedIJColorStringAt(1)) ||
                     !preset.getIJColorStringAt(1).equals(gui.getSelectedIJColorStringAt(2)) ||
@@ -320,7 +296,7 @@ public class Mageek<T extends RealType<T>>  implements Command
             
             if ( !presetName.equals("Custom") )
             {
-                MColorPreset presetSelected = colorPresets.get(presetName);
+                ColorPreset presetSelected = colorPresets.get(presetName);
                 gui.setColorPreset( presetSelected, true);
                 
                 // We choose a unique event for color item selection changed
@@ -358,7 +334,7 @@ public class Mageek<T extends RealType<T>>  implements Command
                     }
                     catch (InterruptedException ex)
                     {
-                        Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Plugin.class.getName()).log(Level.SEVERE, null, ex);
                     }  
                 }
             }
@@ -367,7 +343,7 @@ public class Mageek<T extends RealType<T>>  implements Command
         gui.setStatus(String.format("Welcome to %s v%s", title, version));
         gui.setSourceDirectory("Select a source directory ...");
 
-        gui.setAvailableColors(MColor.All);      
+        gui.setAvailableColors(MetaColor.All);      
 
         ArrayList presets = new ArrayList(colorPresets.values());
         gui.setAvailableColorPresets(presets);

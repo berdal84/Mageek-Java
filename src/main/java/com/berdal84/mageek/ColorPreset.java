@@ -28,48 +28,48 @@ import java.awt.Color;
 /**
  * Color preset (4 colors per preset) identified by a name
  */
-public class MColorPreset
+public class ColorPreset
 {
 
     private String name;
-    private MColor[] colors;
+    private MetaColor[] colors;
 
-    MColorPreset()
+    ColorPreset()
     {
         name = "";
-        MColor[] colors =
+        MetaColor[] colors =
         {
-            MColor.Null,
-            MColor.Null,
-            MColor.Null,
-            MColor.Null
+            MetaColor.Null,
+            MetaColor.Null,
+            MetaColor.Null,
+            MetaColor.Null
         };
         this.colors = colors;
     }
 
-    MColorPreset(String _name)
+    ColorPreset(String _name)
     {
         name = _name;
-        MColor[] colors =
+        MetaColor[] colors =
         {
-            MColor.Null,
-            MColor.Null,
-            MColor.Null,
-            MColor.Null
+            MetaColor.Null,
+            MetaColor.Null,
+            MetaColor.Null,
+            MetaColor.Null
         };
         this.colors = colors;
     }
 
-    MColorPreset(
+    ColorPreset(
             String _name,
-            MColor _color0,
-            MColor _color1,
-            MColor _color2,
-            MColor _color3
+            MetaColor _color0,
+            MetaColor _color1,
+            MetaColor _color2,
+            MetaColor _color3
     )
     {
         this.name = _name;
-        this.colors = new MColor[]
+        this.colors = new MetaColor[]
         {
             _color0,
             _color1,
@@ -80,10 +80,10 @@ public class MColorPreset
 
     ;
     
-    MColorPreset(final MColorPreset _other)
+    ColorPreset(final ColorPreset _other)
     {
         this.name = _other.name;
-        this.colors = new MColor[]
+        this.colors = new MetaColor[]
         {
             _other.colors[0],
             _other.colors[1],
@@ -99,12 +99,12 @@ public class MColorPreset
         return colors[_index].getColor();
     }
 
-    final MColor getMetaColorAt(int _index)
+    final MetaColor getMetaColorAt(int _index)
     {
         return colors[_index];
     }
     
-    final void setMetaColorAt(int _index, MColor _color)
+    final void setMetaColorAt(int _index, MetaColor _color)
     {
         colors[_index] = _color;
     }
@@ -122,6 +122,6 @@ public class MColorPreset
 
     void setIJColorStringAt(int i, String _ijColorString)
     {
-        colors[i] = MColor.getWithIJString(_ijColorString);
+        colors[i] = MetaColor.getWithIJString(_ijColorString);
     }
 }

@@ -84,7 +84,7 @@ public class Process<T extends RealType<T>>  implements Command
     private String projectorMethod;
     
     /* Color to use to apply a LUT to each individual channel */
-    private MColorPreset colorPreset;
+    private ColorPreset colorPreset;
 
     /* Current status of the Process */
     private String status;
@@ -123,7 +123,7 @@ public class Process<T extends RealType<T>>  implements Command
         File _destinationFolder,
         boolean _batchMode,
         String _zProjectorMethod,
-        MColorPreset _colorPreset,
+        ColorPreset _colorPreset,
         LogService _log
     )
     {
@@ -237,7 +237,7 @@ public class Process<T extends RealType<T>>  implements Command
             catch (Exception ex)
             {
                 ignoredFiles.add(file);
-                Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Plugin.class.getName()).log(Level.SEVERE, null, ex);
             }
             processedFiles.add(file);
 

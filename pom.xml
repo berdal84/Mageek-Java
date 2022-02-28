@@ -14,7 +14,7 @@
 
     <groupId>com.berdal84</groupId>
     <artifactId>Mageek</artifactId>
-    <version>2</version>
+    <version>1</version>
 
     <name>Mageek</name>
     <description>A small plugin to colorize images channels, works with multi series/channels/slices.</description>
@@ -95,7 +95,7 @@
 
     <properties>
         <package-name>com.berdal84.mageek</package-name>
-        <main-class>com.berdal84.mageek.Mageek</main-class>
+        <main-class>com.berdal84.mageek.Main</main-class>
         <license.licenseName>MIT</license.licenseName>
         <license.copyrightOwners>Berenger Dalle-Cort and Marcela Garita Hernandez</license.copyrightOwners>
     </properties>
@@ -141,10 +141,6 @@
         <dependency>
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.imglib2</groupId>
-            <artifactId>imglib2-ij</artifactId>
         </dependency>
     </dependencies>
 </project>

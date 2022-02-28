@@ -44,14 +44,14 @@ import org.scijava.ui.UIService;
 /**
  * Main GUI for Mageek
  */
-public class MageekFrame extends javax.swing.JFrame
+public class GUI extends javax.swing.JFrame
 {
 
     /**
      * Creates new form MageekFrame
      * @param ctx
      */
-    public MageekFrame(final Context ctx)
+    public GUI(final Context ctx)
     {
         ctx.inject(this);
         initComponents();
@@ -528,14 +528,14 @@ public class MageekFrame extends javax.swing.JFrame
         }
     }
     
-    void setAvailableColors(MColor[] _colors)
+    void setAvailableColors(MetaColor[] _colors)
     {
         for( JComboBox eachCB : colorComboBoxes )
         {
             eachCB.removeAllItems();
         }
         
-        for( MColor eachColor : _colors)
+        for( MetaColor eachColor : _colors)
         {
             for( JComboBox eachCB : colorComboBoxes )
             {
@@ -544,7 +544,7 @@ public class MageekFrame extends javax.swing.JFrame
         }
     }
     
-    void setColor(MColor _color, int _channel)
+    void setColor(MetaColor _color, int _channel)
     {
         colorComboBoxes
                 .get(_channel)
@@ -565,7 +565,7 @@ public class MageekFrame extends javax.swing.JFrame
         zProjectionComboBox.setSelectedItem(_projection);
     }
 
-    void setColorPreset(MColorPreset _preset, boolean _setColors)
+    void setColorPreset(ColorPreset _preset, boolean _setColors)
     {
         colorPreset.setSelectedItem(_preset.getName());
         if ( _setColors )
@@ -591,10 +591,10 @@ public class MageekFrame extends javax.swing.JFrame
         }
     }
 
-    void setAvailableColorPresets(ArrayList<MColorPreset> _presets)
+    void setAvailableColorPresets(ArrayList<ColorPreset> _presets)
     {
         colorPreset.removeAllItems();
-        for( MColorPreset eachPreset : _presets)
+        for( ColorPreset eachPreset : _presets)
         {
             colorPreset.addItem(eachPreset.getName());
         }

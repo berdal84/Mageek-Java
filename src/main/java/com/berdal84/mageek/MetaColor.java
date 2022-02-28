@@ -29,13 +29,16 @@ import java.awt.Color;
 /**
  * Meta object to store a color from ij (String) and java Color) point of views.
  */
-public final class MColor
+public final class MetaColor
 {
 
+    /* An ImageJ color compatible String */
     private final String ijColorString;
+    
+    /* a java.awt.Color */
     private final Color color;
 
-    private MColor(String _ijColorString, Color _color)
+    private MetaColor(String _ijColorString, Color _color)
     {
         this.ijColorString = _ijColorString;
         this.color = _color;
@@ -67,10 +70,15 @@ public final class MColor
         return ijColorString;
     }
 
-    private static MColor createFromIJColorString(String _ijColorString)
+    /**
+     * Helper function to create a meta color from an ImageJ color string.
+     * @param _ijColorString
+     * @return 
+     */
+    private static MetaColor createFromIJColorString(String _ijColorString)
     {
         Color color = Colors.getColor(_ijColorString, null);
-        MColor result = color == null ? null : new MColor(_ijColorString, color);
+        MetaColor result = color == null ? null : new MetaColor(_ijColorString, color);
         return result;
     }
 
@@ -79,29 +87,30 @@ public final class MColor
      * @param _ijColorString
      * @return 
      */
-    public static MColor getWithIJString(String _ijColorString)
+    public static MetaColor getWithIJString(String _ijColorString)
     {
-        for (MColor each : All)
+        for (MetaColor each : All)
         {
             if (each.ijColorString.equals(_ijColorString))
             {
                 return each;
             }
         }
-        return MColor.Null;
+        return MetaColor.Null;
     }
 
-    public static MColor Null = new MColor("None", Color.BLACK);
-    public static MColor Red = createFromIJColorString("Red");
-    public static MColor Green = createFromIJColorString("Green");
-    public static MColor Blue = createFromIJColorString("Blue");
-    public static MColor Magenta = createFromIJColorString("Magenta");
+    // predefined colors    
+    public static MetaColor Null = new MetaColor("None", Color.BLACK);
+    public static MetaColor Red = createFromIJColorString("Red");
+    public static MetaColor Green = createFromIJColorString("Green");
+    public static MetaColor Blue = createFromIJColorString("Blue");
+    public static MetaColor Magenta = createFromIJColorString("Magenta");
 
-    public static MColor[] All =
+    public static MetaColor[] All =
     {
-        MColor.Red,
-        MColor.Green,
-        MColor.Blue,
-        MColor.Magenta
+        MetaColor.Red,
+        MetaColor.Green,
+        MetaColor.Blue,
+        MetaColor.Magenta
     };
 }
