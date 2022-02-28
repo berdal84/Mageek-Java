@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractButton;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import loci.formats.FormatException;
@@ -331,24 +332,34 @@ public class Mageek<T extends RealType<T>>  implements Command
             }
         });
         
-        gui.addBatchModeListener((PropertyChangeEvent e) ->
+        gui.addBatchModeListener((ActionEvent evt) ->
         {            
-            batchMode = (boolean)e.getNewValue();
+            AbstractButton abstractButton = (AbstractButton)evt.getSource();
+            batchMode = abstractButton.getModel().isSelected();
         });
-        
+
         gui.addCancelBtnListener((ActionEvent e) ->
-        {            
+        {                    
             if( currentProcessThread != null )
-            {                
-                try
+            {        
+                DialogPrompt.Result response = ui.showDialog(
+                    "Do you really want to cancel the current process?",
+                    MessageType.QUESTION_MESSAGE,
+                    OptionType.YES_NO_OPTION);
+                
+                if ( response.equals(DialogPrompt.Result.YES_OPTION) )
                 {
-                    currentProcessThread.interrupt();
-                    currentProcessThread.join();
-                    gui.setStatus("Process canceled");
-                }
-                catch (InterruptedException ex)
-                {
-                    Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                    try
+                    {
+                        currentProcessThread.interrupt();
+                        currentProcessThread.join();
+                        gui.setStatus("Process canceled");
+                        gui.setProgress(0);
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        Logger.getLogger(Mageek.class.getName()).log(Level.SEVERE, null, ex);
+                    }  
                 }
             }
         });
@@ -501,6 +512,7 @@ public class Mageek<T extends RealType<T>>  implements Command
 
             switch (result)
             {
+                case OK_OPTION:
                 case YES_OPTION:
                     FileHelper.deleteDirectoryContent(destinationFolder, false);
                     success = true;

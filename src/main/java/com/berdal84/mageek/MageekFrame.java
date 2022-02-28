@@ -414,9 +414,9 @@ public class MageekFrame extends javax.swing.JFrame
 
     private DefaultListModel listModel = new DefaultListModel();
     
-    public void addBatchModeListener(PropertyChangeListener listener)
+    public void addBatchModeListener(ActionListener listener)
     { 
-        batchCheckBox.addPropertyChangeListener(listener);
+        batchCheckBox.addActionListener(listener);
     }
    
     public void addCancelBtnListener(ActionListener listener)
