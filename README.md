@@ -18,15 +18,13 @@ Here is the result of processing a single *.czi file and putting the 4 channels 
 
 # How to use ?
 
-- Download `Mageek.zip` last release from the assets [here](https://github.com/berdal84/Mageek-Java/releases/latest).
- 
-- Unzip the downloaded file.
+- Download `Mageek.jar` last release from the assets [here](https://github.com/berdal84/Mageek-Java/releases/latest).
  
 - Download and install Fiji from https://imagej.net/Fiji/Downloads
 
 - Run Fiji
 
-- On the main menu, click on `Plugins -> Install` and select the unzipped `Mageek.jar` file.
+- On the main menu, click on `Plugins -> Install` and select `Mageek.jar` file.
 
 ![Screen Shot 2022-02-27 at 4 05 27 PM](https://user-images.githubusercontent.com/942052/155899936-2d0b487f-83ca-418f-958d-4d1586895f26.png)
 
