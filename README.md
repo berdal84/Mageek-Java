@@ -1,6 +1,7 @@
-[![CI](https://github.com/berdal84/Mageek-Java/actions/workflows/ci.yml/badge.svg)](https://github.com/berdal84/Mageek-Java/actions/workflows/ci.yml)
+![image](https://github.com/berdal84/Mageek-Java/blob/master/img/logo.svg)
 
-# Mageek (Java)
+[![CI](https://github.com/berdal84/Mageek-Java/actions/workflows/ci.yml/badge.svg)](https://github.com/berdal84/Mageek-Java/actions/workflows/ci.yml)
+# Introduction:
 
 Mageek is an ImageJ Plugin to process microscope images files in Fiji.
 

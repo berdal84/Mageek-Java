@@ -9,9 +9,9 @@
    id="svg5"
    inkscape:version="1.1.2 (b8e25be8, 2022-02-05)"
    sodipodi:docname="logo.svg"
-   inkscape:export-filename="/Users/berenger/mageek-java/images/logo.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
+   inkscape:export-filename="/Users/berenger/mageek-java/src/main/resources/logo-256x64px.png"
+   inkscape:export-xdpi="53.864742"
+   inkscape:export-ydpi="53.864742"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,19 +23,22 @@
      borderopacity="1.0"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
+     inkscape:pagecheckerboard="false"
      inkscape:document-units="px"
      showgrid="false"
      height="128px"
-     inkscape:zoom="0.89648438"
-     inkscape:cx="302.84967"
-     inkscape:cy="122.14379"
+     inkscape:zoom="0.98976802"
+     inkscape:cx="351.09237"
+     inkscape:cy="18.691248"
      inkscape:window-width="1280"
-     inkscape:window-height="687"
-     inkscape:window-x="1"
+     inkscape:window-height="683"
+     inkscape:window-x="0"
      inkscape:window-y="23"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer2" />
+     inkscape:current-layer="g12908"
+     inkscape:showpageshadow="false"
+     showborder="true"
+     borderlayer="true" />
   <defs
      id="defs2">
     <rect
@@ -92,8 +95,8 @@
        id="filter4030-2"
        x="0"
        y="0"
-       width="1.0118034"
-       height="1.0717673">
+       width="1.0156049"
+       height="1.0777669">
       <feFlood
          flood-opacity="0.16906474820143885"
          flood-color="rgb(32,74,135)"
@@ -137,7 +140,7 @@
        width="1.0156049"
        height="1.0777669">
       <feFlood
-         flood-opacity="0.16906474820143885"
+         flood-opacity="1"
          flood-color="rgb(32,74,135)"
          result="flood"
          id="feFlood4020-4-7" />
@@ -179,8 +182,8 @@
        width="1.0156049"
        height="1.0777669">
       <feFlood
-         flood-opacity="0.16906474820143885"
-         flood-color="rgb(32,74,135)"
+         flood-opacity="1"
+         flood-color="rgb(230,241,252)"
          result="flood"
          id="feFlood4020-4-5" />
       <feComposite
@@ -206,6 +209,12 @@
          result="composite2"
          id="feComposite4028-8-3" />
     </filter>
+    <rect
+       x="6.6928105"
+       y="6.6928105"
+       width="500.84531"
+       height="116.00871"
+       id="rect2100-5-2-9" />
   </defs>
   <g
      inkscape:label="background"
@@ -223,71 +232,10 @@
      style="display:inline">
     <g
        id="g12908"
-       transform="translate(15.616558,4.4618711)"
+       transform="translate(39.041394,-167.32026)"
        style="opacity:1">
-      <g
-         id="g16535">
-        <path
-           style="fill:#e6f1fc;fill-opacity:1;stroke:none;stroke-width:0.849886px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 75.532163,26.524234 32.825793,60.888218 101.77501,55.915099 56.337069,84.480066 177.96641,69.05048 v 0 l 143.95364,39.29243 18.54274,-22.783351 111.76712,30.652111 9.88023,-4.68827 -57.89306,-35.385165 82.25838,14.727194 4.79261,-6.276542 -22.03821,-17.832402 15.18244,2.619868 9.93389,-3.258303 -94.38954,-36.532884 -23.91149,-0.751956 36.28403,28.992494 -85.20456,-26.246083 -35.05019,3.89674 66.56846,32.087282 -63.24682,-10.55863 0.40232,10.724749 -79.17815,0.366606 7.97802,-21.887446 -17.94084,-9.13387 -58.4789,16.01448 L 166.38547,35.808599 138.32299,24.928148 83.592769,40.346376 89.322003,25.52961 Z"
-           id="path4793"
-           sodipodi:nodetypes="ccccccccccccccccccccccccccccccccc" />
-        <ellipse
-           style="opacity:0.809877;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.412648"
-           id="path6700"
-           cx="36.769451"
-           cy="75.621841"
-           rx="27.215345"
-           ry="25.915894"
-           transform="matrix(0.98646915,0.16394697,0,1,0,0)" />
-        <ellipse
-           style="display:inline;opacity:0.809877;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.412648"
-           id="path6700-1"
-           cx="67.821167"
-           cy="-15.391159"
-           rx="27.215345"
-           ry="25.915894"
-           transform="matrix(0.8323698,0.55422064,-0.68318607,0.73024434,0,0)" />
-        <ellipse
-           style="display:inline;opacity:0.809877;fill:#0600ff;fill-opacity:1;stroke:none;stroke-width:0.41143"
-           id="path6700-1-7"
-           cx="97.138092"
-           cy="90.097763"
-           rx="27.054855"
-           ry="25.915894"
-           transform="matrix(0.99232095,-0.12368964,0,1,0,0)" />
-        <text
-           xml:space="preserve"
-           id="text2098"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:83.6035px;line-height:1.25;font-family:'DIN Alternate';-inkscape-font-specification:'DIN Alternate, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect2100-5);fill:#4d4d4d;fill-opacity:1;stroke:none;filter:url(#filter4030-2)"
-           transform="matrix(1.0768635,0,0,1.068978,118.16497,-1.4809342)"><tspan
-             x="6.6933594"
-             y="83.201398"
-             id="tspan18065">Mageek</tspan></text>
-        <ellipse
-           style="opacity:1;fill:#d7f4e3;fill-opacity:1;stroke:none"
-           id="path15800"
-           cx="63.652794"
-           cy="19.954929"
-           rx="9.8793716"
-           ry="6.5693054" />
-        <ellipse
-           style="opacity:1;fill:#ffb380;fill-opacity:1;stroke:none;stroke-width:0.810548"
-           id="path15922"
-           cx="34.350494"
-           cy="74.915077"
-           rx="9.5247011"
-           ry="9.5649872" />
-        <ellipse
-           style="opacity:1;fill:#5599ff;fill-opacity:1;stroke:none;stroke-width:0.732254"
-           id="path16070"
-           cx="91.275307"
-           cy="71.652542"
-           rx="8.4997053"
-           ry="7.7374406" />
-      </g>
       <path
-         style="fill:#e6f1fc;fill-opacity:1;stroke:none;stroke-width:0.849886px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         style="fill:#eceff4;fill-opacity:1;stroke:none;stroke-width:0.849886px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="M 44.509394,200.4772 1.803024,234.84119 70.752241,229.86807 25.3143,258.43304 146.94364,243.00345 v 0 l 143.95364,39.29243 18.54274,-22.78335 111.76712,30.65211 9.88023,-4.68827 -57.89306,-35.38517 82.25838,14.7272 4.79261,-6.27654 -22.03821,-17.83241 15.18244,2.61987 9.93389,-3.2583 -94.38954,-36.53288 -23.91149,-0.75196 36.28403,28.99249 -85.20456,-26.24608 -35.05019,3.89674 66.56846,32.08728 -63.24682,-10.55863 0.40232,10.72475 -79.17815,0.36661 7.97802,-21.88745 -17.94084,-9.13387 -58.4789,16.01448 18.20694,-17.28093 -28.06248,-10.88045 -54.73022,15.41823 5.729234,-14.81677 z"
          id="path4793-9"
          sodipodi:nodetypes="ccccccccccccccccccccccccccccccccc" />
@@ -300,7 +248,7 @@
          ry="25.915894"
          transform="matrix(0.98646915,0.16394697,0,1,0,0)" />
       <ellipse
-         style="display:inline;opacity:0.809877;fill:#55ff55;fill-opacity:1;stroke:none;stroke-width:0.412648"
+         style="display:inline;opacity:0.809877;fill:#4ff04f;fill-opacity:1;stroke:none;stroke-width:0.412648"
          id="path6700-1-1"
          cx="165.32857"
          cy="148.81738"
@@ -318,27 +266,35 @@
       <text
          xml:space="preserve"
          id="text2098-2"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:83.6035px;line-height:1.25;font-family:'DIN Alternate';-inkscape-font-specification:'DIN Alternate, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect2100-5-2);fill:#4d4d4d;fill-opacity:1;stroke:none;filter:url(#filter4030-2-8)"
-         transform="matrix(1.0768635,0,0,1.068978,87.142201,172.47204)"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:83.6035px;line-height:1.25;font-family:'DIN Alternate';-inkscape-font-specification:'DIN Alternate, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect2100-5-2);fill:#c1d1e2;fill-opacity:1;stroke:none"
+         transform="matrix(1.0768635,0,0,1.068978,85.142201,170.47204)"><tspan
            x="6.6933594"
            y="83.201398"
-           id="tspan18067">Mageek</tspan></text>
+           id="tspan1200">Mageek</tspan></text>
+      <text
+         xml:space="preserve"
+         id="text2098-2-8"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:83.6035px;line-height:1.25;font-family:'DIN Alternate';-inkscape-font-specification:'DIN Alternate, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect2100-5-2-9);display:inline;fill:#4d4d4d;fill-opacity:1;stroke:none"
+         transform="matrix(1.0768635,0,0,1.068978,82.248058,165.7705)"><tspan
+           x="6.6933594"
+           y="83.201398"
+           id="tspan1202">Mageek</tspan></text>
       <ellipse
-         style="fill:#d7f4e3;fill-opacity:1;stroke:none"
+         style="fill:#c5f4b7;fill-opacity:0.60887098;stroke:none"
          id="path15800-9"
          cx="32.630024"
          cy="193.9079"
          rx="9.8793716"
          ry="6.5693054" />
       <ellipse
-         style="fill:#fbfbfb;fill-opacity:0.60233921;stroke:none;stroke-width:0.810548"
+         style="fill:#fbe5c7;fill-opacity:0.602339;stroke:none;stroke-width:0.776858"
          id="path15922-6"
-         cx="3.3277254"
+         cx="2.5523939"
          cy="248.86804"
-         rx="9.5247011"
+         rx="8.7493696"
          ry="9.5649872" />
       <ellipse
-         style="fill:#fbfcff;fill-opacity:0.61988306;stroke:none;stroke-width:0.732254"
+         style="fill:#97b1ff;fill-opacity:0.85483873;stroke:none;stroke-width:0.732254"
          id="path16070-9"
          cx="60.252537"
          cy="245.60551"
